@@ -1,0 +1,248 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 0
+
+# Localization color
+[[patches]]
+[patches.pattern]
+target = "functions/misc_functions.lua"
+pattern = "legendary = G.C.RARITY[4],"
+position = "after"
+payload = "poke_safari = G.C.RARITY['poke_safari'],"
+match_indent = true
+
+# Pokemon only functionality
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = "if v.yes_pool_flag and not G.GAME.pool_flags[v.yes_pool_flag] then add = nil end"
+position = "after"
+payload = '''
+if v.set == 'Joker' and not v.stage and pokermon_config and pokermon_config.pokemon_only then add = nil end
+if v.set == 'Joker' and v.stage and not (v.atlas == "poke_Pokedex1" or v.atlas == "poke_others") and pokermon_config and pokermon_config.gen_one then add = nil end
+'''
+match_indent = true
+
+# Magikarp functionality
+[[patches]]
+[patches.pattern]
+target = "functions/state_events.lua"
+pattern = "if next(find_joker('Splash')) then"
+position = "at"
+payload = "if next(find_joker('Splash')) or next(find_joker('magikarp')) then"
+match_indent = true
+
+# Mimikyu Localization Functionality
+[[patches]]
+[patches.regex]
+target = 'functions/state_events.lua'
+pattern = '''if eval.saved then
+  game_over = false
+end'''
+position = 'after'
+payload = '''
+  if not G.localization.misc.dictionary.ph_mr_bones_numbutils then
+    G.localization.misc.dictionary.ph_mr_bones_numbutils = ""..G.localization.misc.dictionary.ph_mr_bones
+  end
+  sendDebugMessage(tostring(G.localization.descriptions.Joker[G.jokers.cards[i].config.center.key].name))
+  G.localization.misc.dictionary.ph_mr_bones = G.localization.misc.dictionary.ph_mr_bones_numbutils:gsub("Mr. Bones", G.localization.descriptions.Joker[G.jokers.cards[i].config.center.key].name)
+  '''
+
+# Extra Booster Functionality
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = "for i = 1, 2 do"
+position = "at"
+payload = "for i = 1, (G.GAME.modifiers.cry_booster_packs or G.GAME.modifiers.poke_booster_packs) or 2 do"
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = "self.added_to_deck = true"
+position = "after"
+payload = '''
+if self.config.shiny_on_add then
+  if G.GAME.modifiers.poke_booster_packs then
+    G.GAME.modifiers.poke_booster_packs = G.GAME.modifiers.poke_booster_packs + 1
+  else
+    G.GAME.modifiers.poke_booster_packs = 3
+  end
+end
+'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = "self.added_to_deck = false"
+position = "after"
+payload = '''
+if self.edition and self.edition.poke_shiny and G.jokers then
+  if G.GAME.modifiers.poke_booster_packs then
+    G.GAME.modifiers.poke_booster_packs = G.GAME.modifiers.poke_booster_packs - 1
+  else
+    G.GAME.modifiers.poke_booster_packs = 0
+  end
+end
+'''
+match_indent = true
+
+# Voucher functionality
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = "local _size = self.ability.extra"
+position = "after"
+payload = '''
+if self.ability.name:find("Pocket") and G.GAME.extra_pocket_picks and G.GAME.extra_pocket_picks > 0 then
+  _size = _size + G.GAME.extra_pocket_picks
+end
+'''
+match_indent = true
+
+#Shiny shader
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''
+if (self.edition and self.edition.negative) or (self.ability.name == 'Antimatter' and (self.config.center.discovered or self.bypass_discovery_center)) then
+    self.children.center:draw_shader('negative_shine', nil, self.ARGS.send_to_shader)
+end
+'''
+position = "after"
+payload = '''
+if (self.edition and self.edition.poke_shiny) and self.config.center and type(self.config.center) == "table" and not (self.config.center.stage or self.config.center.shiny) 
+and self.label ~= "e_poke_shiny" then
+    self.children.center:draw_shader('poke_shiny', nil, self.ARGS.send_to_shader)
+end
+'''
+match_indent = true
+
+#Pidgey functionality
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''
+if (self.ability.set == 'Planet' or (self.ability.set == 'Booster' and self.ability.name:find('Celestial'))) and #find_joker('Astronomer') > 0 then self.cost = 0 end
+'''
+position = "after"
+payload = '''
+if (self.ability.set == 'Planet' or (self.ability.set == 'Booster' and self.ability.name:find('Celestial'))) and #find_joker('pidgey') > 0 then self.cost = math.max(0, self.cost - 2) end
+if (self.ability.set == 'Planet' or (self.ability.set == 'Booster' and self.ability.name:find('Celestial'))) and #find_joker('pidgeotto') > 0 then self.cost = math.max(0, self.cost - 3) end
+if (self.ability.set == 'Planet' or (self.ability.set == 'Booster' and self.ability.name:find('Celestial'))) and #find_joker('pidgeot') > 0 then self.cost = 0 end
+'''
+match_indent = true
+
+#Deck functionality
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = "if card.ability.consumeable and not skip_materialize then card:start_materialize() end"
+position = "after"
+payload = '''
+if front and G.GAME.modifiers.poke_force_seal then card:set_seal(G.GAME.modifiers.poke_force_seal) end
+if _type == 'Joker' and G.GAME.modifiers.apply_type then apply_type_sticker(card); energy_increase(card, type_sticker_applied(card)) end
+'''
+match_indent = true
+
+#Debuff functionality
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''
+if self.ability.perishable and self.ability.perish_tally <= 0 then 
+    if not self.debuff then
+        self.debuff = true
+        if self.area == G.jokers then self:remove_from_deck(true) end
+    end
+    return
+end
+'''
+position = "after"
+payload = '''
+if next(find_joker("tangrowth")) and self.ability.name == "Wild Card" then should_debuff = false end
+if next(find_joker("tentacruel")) and self:get_id() == 10 then should_debuff = false end
+'''
+match_indent = true
+
+# Splash Screen
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = "SC = Card(G.ROOM.T.w/2 - SC_scale*G.CARD_W/2, 10. + G.ROOM.T.h/2 - SC_scale*G.CARD_H/2, SC_scale*G.CARD_W, SC_scale*G.CARD_H, G.P_CARDS.empty, G.P_CENTERS['j_joker'])"
+position = "after"
+payload = '''
+if pokermon_config.pokemon_splash then
+  local pokemon = {}
+  for k, v in pairs(G.P_CENTERS) do
+    if v.set == 'Joker' and v.stage then
+      table.insert(pokemon, v)
+    end
+  end
+  local chosen = math.random(#pokemon)
+  local chosencard = pokemon[chosen]
+  SC = Card(G.ROOM.T.w/2 - SC_scale*G.CARD_W/2, 10. + G.ROOM.T.h/2 - SC_scale*G.CARD_H/2, SC_scale*G.CARD_W, SC_scale*G.CARD_H, G.P_CARDS.empty, chosencard)
+end
+'''
+match_indent = true
+
+# Twisted Spoon
+[[patches]]
+[patches.pattern]
+target = "functions/misc_functions.lua"
+pattern = '''
+if card.config.center.set == 'Tarot' or card.config.center.set == 'Planet' then 
+  G.E_MANAGER:add_event(Event({
+    trigger = 'immediate',
+    func = function()
+      G.E_MANAGER:add_event(Event({
+        trigger = 'immediate',
+        func = function()
+          G.GAME.last_tarot_planet = card.config.center_key
+            return true
+        end
+      }))
+        return true
+    end
+  }))
+end
+'''
+position = "after"
+payload = '''
+if card.config.center.set == 'Item' or card.config.center.set == 'Energy' then 
+  G.E_MANAGER:add_event(Event({
+    trigger = 'immediate',
+    func = function()
+      G.E_MANAGER:add_event(Event({
+        trigger = 'immediate',
+        func = function()
+          G.GAME.last_poke_item = card.config.center_key
+            return true
+        end
+      }))
+        return true
+    end
+  }))
+end
+'''
+match_indent = true
+
+# Description functionality, a little hacky but it works
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = '''
+if main_end then 
+    desc_nodes[#desc_nodes+1] = main_end 
+end
+'''
+position = "after"
+payload = '''
+if (_c.set == 'Item' or _c.set == 'Energy') and _c.poke_add_desc then
+  localize{type = 'descriptions', key = _c.key, set = _c.set, nodes = desc_nodes, vars = loc_vars}
+end
+'''
+match_indent = true

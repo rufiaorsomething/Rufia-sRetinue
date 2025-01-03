@@ -1,0 +1,15 @@
+{
+    "id": "RufiasRetinue",
+    "name": "Rufia's Retinue",
+    "author": ["Rufia"],
+    "description": "You're off the edge of the map, here there be monsters",
+    "prefix": "rufia",
+    "main_file": "RufiasRetinue.lua",
+    "badge_colour": "FC3A3A",
+    "badge_text_colour": "FFFFFF",
+    "display_name": "Rufia's Retinue",
+    "version": "0.1",
+    "dependencies": [
+        "Steamodded (>=1.0.0~ALPHA-1221a)"
+    ]
+}

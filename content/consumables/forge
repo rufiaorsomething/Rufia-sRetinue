@@ -1,0 +1,57 @@
+local consumable_key = "forge"
+local enhancement_key = "null"
+
+local consumable = {
+	object_type = "Consumable",
+	set = "Tarot",
+	name = "The Forge",
+	key = consumable_key,
+	order = 1,
+	pos = { x = 1, y = 1 },
+	config = { mod_conv = enhancement_key, max_highlighted = 1 },
+	atlas = "Rufia_Consumables",
+	loc_vars = function(self, info_queue)
+		info_queue[#info_queue + 1] = G.P_CENTERS[enhancement_key]
+
+		return { vars = { self.config.max_highlighted } }
+	end,
+
+	use = function(self, card, area, copier)
+		G.hand:unhighlight_all()
+		local valid_cards = 0
+		
+		G.E_MANAGER:add_event(Event({
+			trigger = 'after',
+			delay = 0.15,
+			func = function()
+				card:highlight(true)
+				card:flip()
+				play_sound('generic1', 0.7, 0.35)
+				card:juice_up(0.3,0.3)
+				return true
+			end
+		}))
+		G.E_MANAGER:add_event(Event({
+			trigger = 'after',
+			delay = 0.4,
+			func = function()
+				card:set_ability(G.P_CENTERS[enhancement_key])
+				card:juice_up(0.3,0.3)
+				return true
+			end
+		}))
+		G.E_MANAGER:add_event(Event({
+			trigger = 'after',
+			delay = 0.15,
+			func = function()
+				card:highlight(false)
+				card:flip()
+				play_sound('tarot2', 0.85, 0.6)
+				card:juice_up(0.3,0.3)
+				return true
+			end
+		}))
+	end,
+}
+
+return consumable

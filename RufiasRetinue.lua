@@ -31,10 +31,10 @@ local seal_list = {
 	--"serpentine",
 }
 local edition_list = {
-	--"torn",
-	--"sundered",
-	--"ripped",
-	--"shredded",
+	"torn",
+	"sundered",
+	"ripped",
+	"shredded",
 }
 local consumable_list = {
 	--- Tarots
@@ -88,12 +88,13 @@ for _, v in ipairs(joker_list) do
 	::continue::
 end
 
-local enh_confection = NFS.load(SMODS.current_mod.path .. 'content/enhancements/confection.lua')()
+--local enh_confection = NFS.load(SMODS.current_mod.path .. 'content/enhancements/confection.lua')()
 --local enh_confection = SMODS.load_file("content/enhancements/confection.lua")()
-enh_confection.key = "confection"
-enh_confection.atlas = "Rufia_Modifications"
+--enh_confection.key = "confection"
+--enh_confection.atlas = "Rufia_Modifications"
+--SMODS.Enhancement(enh_confection)
 
---[[ -- Load all enhancements
+-- Load all enhancements
 for _, v in ipairs(enhancement_list) do
 	local enhance = SMODS.load_file("content/enhancements/" .. v .. ".lua")()
 
@@ -119,7 +120,29 @@ for _, v in ipairs(enhancement_list) do
 	::continue::
 end
 
--- Load consumables
+
+
+-- Load all editions
+for _, v in ipairs(edition_list) do
+	local edition = SMODS.load_file("content/editions/" .. v .. ".lua")()
+
+	if edition.dependency and not (SMODS.Mods[joker.dependency] or {}).can_load then goto continue end
+	edition.key = v
+	--edition.atlas = "Rufia_Modifications"
+	--joker.config.discover_rounds = 0
+
+	local edition_obj = SMODS.Edition(edition)
+	SMODS.Shader({ key = v, path = v .. ".fs" })
+
+	for k_, v_ in pairs(edition) do
+		if type(v_) == 'function' then
+			edition_obj[k_] = edition[k_]
+		end
+	end
+
+	::continue::
+end
+--[[ -- Load consumables
 for _, v in ipairs(consumable_list) do
 	local cons = SMODS.load_file("content/consumables/" .. v .. ".lua")()
 

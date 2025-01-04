@@ -1,0 +1,50 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 1
+
+# Confection card
+[[patches]]
+[patches.pattern]
+target = 'functions/state_events.lua'
+pattern = '''if destroyed then break end
+end'''
+position = 'after'
+match_indent = true
+payload = '''
+if scoring_hand[i].ability.name == 'Confection Card' and not scoring_hand[i].debuff then 
+	destroyed = true
+end'''
+
+# Shredded cards
+[[patches]]
+[patches.pattern]
+target = 'functions/state_events.lua'
+pattern = '''--From edition
+                if scoring_hand[i].edition and scoring_hand[i].edition.key then'''
+position = 'before'
+match_indent = true
+payload = '''
+				--Shredded Edition
+				if i == 1 and #G.play.cards <= 2 then
+					for j=1, #G.jokers.cards do
+						if G.jokers.cards[j] and G.jokers.cards[j].edition and G.jokers.cards[j].edition.key == "e_rufia_shredded" then  --and G.jokers[j].edition and G.jokers[j].edition.name == "Shredded" then
+							for i=1, 2 do
+								reps[#reps+1] = {jokers = {
+									message = localize("k_again_ex"),
+									card = G.jokers.cards[j]
+								}}
+							end
+						end
+					end
+					for j=1, #scoring_hand do
+						if scoring_hand[j] and scoring_hand[j].edition and scoring_hand[j].edition.key == "e_rufia_shredded" then --and scoring_hand[j].edition.name == "Shredded" then
+							for i=1, 2 do
+								reps[#reps+1] = {seals = {
+									message = localize("k_again_ex"),
+									card = scoring_hand[j]
+								}}
+							end
+						end
+					end
+				end'''

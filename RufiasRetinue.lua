@@ -21,7 +21,7 @@ local joker_list = {
 	--"queen_of_hatred",
 
 	--- Legendary
-	--"whitenight",
+	"suture",
 }
 local enhancement_list = {
 	"confection",

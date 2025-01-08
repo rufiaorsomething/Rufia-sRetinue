@@ -1,99 +1,111 @@
-local perpetuity = {
+local joker = {
 	name = "Perpetuity",
 	pos = {x = 0, y = 0},
 	--soul_pos = { x = 3, y = 3 },
 	rarity = 2,
 	cost = 8,
 	discovered = true,
-	--config = { extra = { money = 3 } },
+	config = { 
+		mult = 5
+	},
 	loc_txt = {
-		name = "Suture",
-		text = {"When {C:attention}Blind{} is selected,",
-			"destroy joker to the right.",
-			"Whenever a base edition",
-			"joker is destroyed, create",
-			"either a {C:attention}Torn{} and {C:attention}Sundered{}",
-			"or a {C:attention}Ripped{} and {C:attention}Shredded{} copy"}
+		name = "Perpetuity",
+		text = {"{C:mult}+#1#{} Mult for each copy of this joker you possess",
+			"When {C:attention}Blind{} is selected, if there are no jokers",
+			"to this card's right, {C:attention}Duplicate{} this Joker"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return {
-			vars = {}
+			vars = {self.config.mult}
 		}
 	end,
-	blueprint_compat = false,
+	blueprint_compat = true,
 	eternal_compat = true,
 	perishable_compat = true,
 }
 
 joker.calculate = function(self, card, context)	
-	local my_pos = nil
-	for i = 1, #G.jokers.cards do
-		if G.jokers.cards[i] == card then
-			my_pos = i
-			break
-		end
-	end
-	if
-		context.setting_blind
-		and not (context.blueprint_card or self).getting_sliced
-		and my_pos
-		and G.jokers.cards[my_pos + 1]
-		and not G.jokers.cards[my_pos + 1].ability.eternal
-		and not G.jokers.cards[my_pos + 1].getting_sliced
-	then
-		local sliced_card = G.jokers.cards[my_pos + 1]
-		sliced_card.getting_sliced = true
-		G.GAME.joker_buffer = G.GAME.joker_buffer - 1
+	if context.setting_blind and not self.getting_sliced and #G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit then
+		G.GAME.joker_buffer = G.GAME.joker_buffer + 1
 		G.E_MANAGER:add_event(Event({
-			func = function()
+			func = function() 
+				local card = copy_card(self, nil, nil, nil, self.edition and self.edition.negative)
+				card:add_to_deck()
+				G.jokers:emplace(card)
+				card:start_materialize()
 				G.GAME.joker_buffer = 0
-				card:juice_up(0.8, 0.8)
-				sliced_card:start_dissolve({ HEX("57ecab") }, nil, 1.6)
-				play_sound("slice1", 0.96 + math.random() * 0.08)
 				return true
-			end,
-		}))
-		return nil, true
+			end}))
+		card_eval_status_text(self, 'extra', nil, nil, nil, {message = "Mitosis!"}) 
+	--elseif context.joker_main then
+	--	return {
+	--		message = localize{type = 'variable', key = 'a_xmult', vars = {self.ability.extra}},
+	--		Xmult_mod = self.ability.extra
+	--	}
 	end
 
-	if context.destroying_cards and not context.blueprint_card then
-		if context.destroyed_card and context.destroyed_card ~= card and not context.destroyed_card.edition then
-			card_eval_status_text(card, 'extra', nil, nil, nil, {
-				message = "disfigured!",--localize{type='variable',key='a_chips',vars={eaten_chips}},
-				colour = G.C.MULT})
 
-			local ripped_to_shreds = pseudorandom("suture") > 0.5
+	-- if context.setting_blind and not context.blueprint then
+	-- 	local last_joker_i = 0
+	-- 	local this_joker_i = 0
+	-- 	for i = 1, #G.jokers.cards do
+	-- 		last_joker_i = i
+	-- 		if G.jokers.cards[i] == card then
+	-- 			this_joker_i = i
+	-- 			break
+	-- 		end
+	-- 	end
 
-			if ripped_to_shreds then
-				local ripped_copy = copy_card(context.destroyed_card)
-				local edition = {rufia_ripped = true}
-				ripped_copy:set_edition(edition, true)
-				ripped_copy:add_to_deck()
-				G.jokers:emplace(ripped_copy)
-	
-				local shredded_copy = copy_card(context.destroyed_card)
-				edition = {rufia_shredded = true}
-				shredded_copy:set_edition(edition, true)
-				shredded_copy:add_to_deck()
-				G.jokers:emplace(shredded_copy)
+	-- 	print("last_joker_i: " .. last_joker_i)
+	-- 	print("this_joker_i: " .. this_joker_i)
 
-			else
-				local torn_copy = copy_card(context.destroyed_card)
-				local edition = {rufia_torn = true}
-				torn_copy:set_edition(edition, true)
-				torn_copy:add_to_deck()
-				G.jokers:emplace(torn_copy)
-	
-				local sundered_copy = copy_card(context.destroyed_card)
-				edition = {rufia_sundered = true}
-				sundered_copy:set_edition(edition, true)
-				sundered_copy:add_to_deck()
-				G.jokers:emplace(sundered_copy)
-			end			
-		end
-	end
+	-- 	if (last_joker_i == this_joker_i) then
+	-- 	--	local duplicate_joker = copy_card(self)
+	-- 	--	duplicate_joker:add_to_deck()
+	-- 	--	G.jokers:emplace(duplicate_joker)
+
+	-- 	--	card_eval_status_text(card, 'extra', nil, nil, nil, {
+	-- 	--		message = localize(k_duplicated_ex),--localize{type='variable',key='a_chips',vars={eaten_chips}},
+	-- 	--		colour = G.C.FILTER})
+	-- 		G.GAME.joker_buffer = G.GAME.joker_buffer + 1
+	-- 		G.E_MANAGER:add_event(Event({
+	-- 			func = function() 
+	-- 				local card = copy_card(self, nil, nil, nil, self.edition and self.edition.negative)
+	-- 				card:add_to_deck()
+	-- 				G.jokers:emplace(card)
+	-- 				card:start_materialize()
+	-- 				G.GAME.joker_buffer = 0
+	-- 				return true
+	-- 			end}))
+	-- 		card_eval_status_text(self, 'extra', nil, nil, nil, {message = "Mitosis!"}) 
+	-- 	end
+
+	-- -- 	and not (context.blueprint_card or self).getting_sliced then
+
+	-- -- 	local last_joker_i = 0
+	-- -- 	local this_joker_i = 0
+	-- -- 	for i = 1, #G.jokers.cards do
+	-- -- 		last_joker_i = i
+	-- -- 		if G.jokers.cards[i] == card then
+	-- -- 			this_joker_i = i
+	-- -- 			break
+	-- -- 		end
+	-- -- 	end
+
+		
+	-- -- 	--local duplicate_joker = copy_card(card)
+	-- -- 	--duplicate_joker:add_to_deck()
+	-- -- 	--G.jokers:emplace(duplicate_joker)
+
+	-- -- 	--card_eval_status_text(card, 'extra', nil, nil, nil, {
+	-- -- 	--	message = localize(k_duplicated_ex),--localize{type='variable',key='a_chips',vars={eaten_chips}},
+	-- -- 	--	colour = G.C.FILTER})
+
+	-- -- 	return {
+	-- -- 		message = localize(k_duplicated_ex),
+	-- -- 		colour = G.C.FILTER
+	-- -- 	}, true
+	-- end
 end
 
 return joker
-
--- birds are supposed to be high

@@ -8,8 +8,8 @@ local enhancement = {
 		text = {"When scored, permanently",
 			"increase the chips of",
 			"cards {C:attention}held in hand{} by",
-			"this card's chips,",
-			"then destroy this card"}
+			"this card's chips",
+			"destroy this card after scoring"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return {
@@ -21,7 +21,11 @@ local enhancement = {
 		if context.cardarea == G.play and not context.repetition then
 			--if (card.ability.name) then print(card.ability.name) end
 
-			local eaten_chips = card.base.nominal + card.ability.perma_bonus --card.ability.chips + card.ability.perma_bonus
+			local eaten_chips = card:get_chip_bonus()--card.base.nominal + card.ability.perma_bonus --card.ability.chips + card.ability.perma_bonus
+			if card.edition then
+				eaten_chips = eaten_chips + (card.edition.chips or 0)
+			end
+			
 			for i, held_card in pairs(G.hand.cards) do
 				G.E_MANAGER:add_event(Event({
 					trigger = 'after',

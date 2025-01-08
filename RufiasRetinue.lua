@@ -7,6 +7,29 @@ local folder = string.match(mod_path, "[Mm]ods.*")
 -- Since Cryptid completely overrides create_card, make sure it is only patched later, and only when needed
 create_card_late_patched = false
 
+--================= GAME COLOURS ===================--
+-- red = G.C.RED,
+-- mult = G.C.MULT,
+-- blue = G.C.BLUE,
+-- chips = G.C.CHIPS,
+-- green = G.C.GREEN,
+-- money = G.C.MONEY,
+-- gold = G.C.GOLD,
+-- attention = G.C.FILTER,
+-- purple = G.C.PURPLE,
+-- white = G.C.WHITE,
+-- inactive = G.C.UI.TEXT_INACTIVE,
+-- spades = G.C.SUITS.Spades,
+-- hearts = G.C.SUITS.Hearts,
+-- clubs = G.C.SUITS.Clubs,
+-- diamonds = G.C.SUITS.Diamonds,
+-- tarot = G.C.SECONDARY_SET.Tarot,
+-- planet = G.C.SECONDARY_SET.Planet,
+-- spectral = G.C.SECONDARY_SET.Spectral,
+-- edition = G.C.EDITION,
+-- dark_edition = G.C.DARK_EDITION,
+-- legendary = G.C.RARITY[4],
+-- enhanced = G.C.SECONDARY_SET.Enhanced
 --=============== STEAMODDED OBJECTS ===============--
 
 -- To disable any object, comment it out by adding -- at the start of the line.
@@ -15,13 +38,15 @@ local joker_list = {
 	--"one_sin",
 
 	--- Uncommon
-	--"scorched_girl",
+	--"perpetuity",
 
 	--- Rare
-	--"queen_of_hatred",
+	"patience",
 
 	--- Legendary
 	"suture",
+	"queen of tarts",
+	"matthias",
 }
 local enhancement_list = {
 	"confection",
@@ -54,6 +79,72 @@ local get_badge_colourref = get_badge_colour
 function get_badge_colour(key)
 	return badge_colors[key] or get_badge_colourref(key)
 end
+
+local amoeba = {
+	name = "Amoeba",
+	slug = 'rufia_amoeba',
+	key = 'rufia_amoeba',
+	desc = {
+		"{X:red,C:white}X#1#{} Mult,",
+		"duplicate this {C:attention}Joker",
+		"when {C:attention}Blind{} is selected",
+		"{C:inactive}(Must have room)"
+	},
+	config = {
+		extra = 1.5
+	},
+	pos = {x = 3, y = 1},
+	rarity = 3,
+	cost = 9,
+	loc_def = function(card) return {
+		card.ability.extra} end,
+	blueprint_compat = false,
+	eternal_compat = false
+}
+
+amoeba.calculate = function(self, context)
+	if context.setting_blind and not self.getting_sliced and #G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit then
+		G.GAME.joker_buffer = G.GAME.joker_buffer + 1
+		G.E_MANAGER:add_event(Event({
+			func = function() 
+				local card = copy_card(self, nil, nil, nil, self.edition and self.edition.negative)
+				card:add_to_deck()
+				G.jokers:emplace(card)
+				card:start_materialize()
+				G.GAME.joker_buffer = 0
+				return true
+			end}))
+		card_eval_status_text(self, 'extra', nil, nil, nil, {message = "Mitosis!"}) 
+	elseif context.joker_main then
+		return {
+			message = localize{type = 'variable', key = 'a_xmult', vars = {self.ability.extra}},
+			Xmult_mod = self.ability.extra
+		}
+	end
+end
+
+--SMODS.Joker(amoeba)
+
+local amoeba_joker = SMODS.Joker:new(
+	amoeba.name, 
+	amoeba.slug, 
+	amoeba.config,
+	amoeba.pos,
+	{name = amoeba.name, text = amoeba.desc},
+	amoeba.rarity,
+	amoeba.cost, 
+	nil, 
+	nil, 
+	amoeba.blueprint_compat, 
+	amoeba.eternal_compat, 
+	nil, 
+	'new_jokers',
+	nil
+)
+amoeba_joker.atlas = "Rufia_Jokers"
+amoeba_joker.loc_def = amoeba.loc_def
+amoeba_joker:register()
+
 
 -- Load all jokers
 for _, v in ipairs(joker_list) do

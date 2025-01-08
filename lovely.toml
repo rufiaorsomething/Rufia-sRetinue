@@ -12,7 +12,7 @@ end'''
 position = 'after'
 match_indent = true
 payload = '''
-if scoring_hand[i].ability.name == 'Confection Card' and not scoring_hand[i].debuff then 
+if scoring_hand[i].config.center == G.P_CENTERS.m_rufia_confection and not scoring_hand[i].debuff then 
 	destroyed = true
 end'''
 
@@ -60,7 +60,7 @@ match_indent = true
 payload = '''
 	local hypnotics_in_hand = {}
 	for hyp=1, #G.hand.cards do
-		if G.hand.cards[hyp].ability.name == 'Hypnotic Card' and not G.hand.cards[hyp].debuff then
+		if G.hand.cards[hyp].config.center == G.P_CENTERS.m_rufia_hypnotic and not G.hand.cards[hyp].debuff then
 			scoring_hand[#scoring_hand + 1] = G.hand.cards[hyp]
 			hypnotics_in_hand[#hypnotics_in_hand + 1] = G.hand.cards[hyp]
 			highlight_card(G.hand.cards[hyp],(#scoring_hand - 0.999)/5,'up')
@@ -80,7 +80,7 @@ pattern = '''if next(eval) and eval.jokers then
 position = 'after'
 match_indent = true
 payload = '''
-	if scoring_hand[i].ability.name == 'Hypnotic Card' and not scoring_hand[i].debuff then
+	if scoring_hand[i].config.center == G.P_CENTERS.m_rufia_hypnotic and not scoring_hand[i].debuff then
 
 		local is_in_hand = false
 		for hyp=1, #hypnotics_in_hand do

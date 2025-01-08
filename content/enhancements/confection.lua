@@ -4,7 +4,7 @@ local enhancement = {
 	atlas = "Rufia_Modifications",
 	pos = {x = 0, y = 0},
 	loc_txt = {
-		name = "Confection",
+		name = "Confection Card",
 		text = {"When scored, permanently",
 			"increase the chips of",
 			"cards {C:attention}held in hand{} by",

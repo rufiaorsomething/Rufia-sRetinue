@@ -21,7 +21,7 @@ local enhancement = {
 		},
 	}, ]]
 	loc_txt = {
-		name = "Null",
+		name = "Null Card",
 		text = {
 			"no rank or suit",
 			"When scored, permanently",

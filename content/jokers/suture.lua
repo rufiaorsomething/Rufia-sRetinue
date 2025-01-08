@@ -92,8 +92,10 @@ joker.calculate = function(self, card, context)
 			end			
 		end
 	end
+	if context.cards_destroyed then
+	end
+	if context.remove_playing_cards then
+	end
 end
 
 return joker
-
--- birds are supposed to be high

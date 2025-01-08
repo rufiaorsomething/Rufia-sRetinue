@@ -26,6 +26,7 @@ local joker_list = {
 local enhancement_list = {
 	"confection",
 	"null",
+	"hypnotic",
 }
 local seal_list = {
 	--"serpentine",

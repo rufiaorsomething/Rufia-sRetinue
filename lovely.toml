@@ -21,7 +21,7 @@ end'''
 [patches.pattern]
 target = 'functions/state_events.lua'
 pattern = '''--From edition
-                if scoring_hand[i].edition and scoring_hand[i].edition.key then'''
+				if scoring_hand[i].edition and scoring_hand[i].edition.key then'''
 position = 'before'
 match_indent = true
 payload = '''
@@ -48,3 +48,81 @@ payload = '''
 						end
 					end
 				end'''
+
+
+# Hypnotic cards
+[[patches]]
+[patches.pattern]
+target = 'functions/state_events.lua'
+pattern = '''check_for_unlock({type = 'hand', handname = text, disp_text = non_loc_disp_text, scoring_hand = scoring_hand, full_hand = G.play.cards})'''
+position = 'after'
+match_indent = true
+payload = '''
+	local hypnotics_in_hand = {}
+	for hyp=1, #G.hand.cards do
+		if G.hand.cards[hyp].ability.name == 'Hypnotic Card' and not G.hand.cards[hyp].debuff then
+			scoring_hand[#scoring_hand + 1] = G.hand.cards[hyp]
+			hypnotics_in_hand[#hypnotics_in_hand + 1] = G.hand.cards[hyp]
+			highlight_card(G.hand.cards[hyp],(#scoring_hand - 0.999)/5,'up')
+		end
+	end
+'''
+
+[[patches]]
+[patches.pattern]
+target = 'functions/state_events.lua'
+pattern = '''if next(eval) and eval.jokers then 
+						if not eval.jokers.repetitions then eval.jokers.repetitions = 0 end
+						for h = 1, eval.jokers.repetitions do
+							reps[#reps+1] = eval
+						end
+					end end})'''
+position = 'after'
+match_indent = true
+payload = '''
+	if scoring_hand[i].ability.name == 'Hypnotic Card' and not scoring_hand[i].debuff then
+
+		local is_in_hand = false
+		for hyp=1, #hypnotics_in_hand do
+			if scoring_hand[i] == hypnotics_in_hand[hyp] then
+				is_in_hand = true
+				break
+			end
+		end
+
+		if is_in_hand then
+			local hypnotic_effects = {{scored_hypnotic = true }}
+			eval2 = eval_card(G.jokers.cards[j], {card_effects = hypnotic_effects, retrigger_hypnotics = true, cardarea = G.hand, full_hand = G.play.cards, scoring_hand = scoring_hand, scoring_name = text, poker_hands = poker_hands, other_card = scoring_hand[i], repetition = true, 
+			callback = function(card, ret)
+				eval2 = {jokers = ret}
+				if next(eval2) and eval2.jokers then 
+					if not eval2.jokers.repetitions then eval2.jokers.repetitions = 0 end
+					for h = 1, eval2.jokers.repetitions do
+						reps[#reps+1] = eval2
+					end
+				end 
+			end})
+		end
+	end
+'''
+
+
+
+
+
+
+
+# Joker Slot Playing cards
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''if self.ability.name == 'Caino' and to_big(self.ability.caino_xmult) > to_big(1) then
+							return {
+								message = localize{type='variable',key='a_xmult',vars={self.ability.caino_xmult}},
+								Xmult_mod = self.ability.caino_xmult
+							}
+						end'''
+position = 'after'
+match_indent = true
+payload = '''
+'''

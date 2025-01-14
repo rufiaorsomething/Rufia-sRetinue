@@ -1,17 +1,19 @@
 local joker = {
-	name = "Matthias",
-	pos = {x = 0, y = 0},
-	--soul_pos = { x = 1, y = 6 },
+	name = "rufia-matthias",
+	atlas = "big",
+	pos = {x = 2, y = 0},
+	soul_pos = { x = 3, y = 0 },
 	rarity = 4,
 	cost = 20,
 	discovered = true,
-	--config = { extra = 1 },
+	config = { rufia_rescale = {x = 1.479, y = 1.484} },
 	loc_txt = {
 		name = "Matthias",
-		text = {"Played Gold Cards grant",
+		text = {"Played {C:attention}Gold Cards{} grant",
 			"{C:mult}Mult{} equal to your {C:money}${}"}
 	},
 	loc_vars = function(self, info_queue, card)
+		info_queue[#info_queue + 1] = G.P_CENTERS.m_gold
 		return {
 			vars = {}
 		}

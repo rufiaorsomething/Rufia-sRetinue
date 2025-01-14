@@ -23,10 +23,9 @@ local enhancement = {
 	loc_txt = {
 		name = "Null Card",
 		text = {
-			"no rank or suit",
-			"When scored, permanently",
-			"upgrade the level",
-			"of played poker hand"
+			"No rank or suit",
+			"Permanently level up played",
+			"poker hand when scored"
 		}
 	},
 	loc_vars = function(self, info_queue, card)
@@ -37,14 +36,9 @@ local enhancement = {
 
 	calculate = function(self, card, context, effect)
 		if context.cardarea == G.play and not context.repetition then
-			local hand = G.GAME.last_hand_played
-			
-			card_eval_status_text(card, 'extra', nil, nil, nil, {message = localize('k_upgrade_ex')})
-			level_up_hand(card, hand, nil, 1)
-			update_hand_text(
-				{ sound = "button", volume = 0.7, pitch = 0.8, delay = 0.3 },
-				{ handname=localize(hand, 'poker_hands'), chips = G.GAME.hands[hand].chips, mult = G.GAME.hands[hand].mult, level=G.GAME.hands[hand].level}
-			)
+
+			effect.level_up = 1
+			effect.card = card
 		end
 	end
 }

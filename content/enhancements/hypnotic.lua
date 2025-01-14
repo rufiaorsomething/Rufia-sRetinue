@@ -7,8 +7,8 @@ local enhancement = {
 		name = "Hypnotic Card",
 		text = {"Card scores when",
 			"held in hand",
-			"Scores before other",
-			"held in hand abilities"}
+			"{C:inactive}(Scores before other",
+			"{C:inactive}held in hand abilities)"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return {

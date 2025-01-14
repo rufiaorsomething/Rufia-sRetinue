@@ -19,8 +19,15 @@ vec4 dissolve_mask(vec4 final_pixel, vec2 texture_coords, vec2 uv);
 vec4 effect( vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords )
 {
 	vec2 uv = (((texture_coords) * (image_details)) - texture_details.xy * texture_details.zw) / texture_details.zw;
+
+	//Recenter
+	vec2 new_uv = clamp(uv - vec2(0.25,0),0,1);
+	vec2 new_texture_coords = ((new_uv * texture_details.zw) + (texture_details.xy * texture_details.zw)) / image_details;
+	//Recenter
+
 	vec2 origin_uv = uv.xy;
-	vec4 pixel = Texel(texture, texture_coords);
+	vec4 pixel = Texel(texture, new_texture_coords);
+
 
 	float t = time * 10.0 + 2003.;
 	t = 0.2;
@@ -48,9 +55,9 @@ vec4 effect( vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords
 	float field_b = (cos(length(field_part1) / 19.483) + sin(length(field_part2) / 33.155) * cos(field_part2.y / 15.73) +
 		cos(length(field_part3) / 27.193) * sin(field_part3.x / 21.92));
 
-
 	float opacity = 1.0;
-	float boundary = uv.x - 0.5;
+	//float boundary = uv.x - 0.5;
+	float boundary = uv.x - 0.75;
 	boundary *= 12;
 
 	boundary += (field + field_b) / 2.0;
@@ -59,6 +66,7 @@ vec4 effect( vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords
 	}
 
 	opacity = min(pixel.a, opacity);
+	//opacity = 1.0;
 
 	vec4 final_color = vec4(pixel.rgb, opacity + ripped.x * 0.000000000001);
 

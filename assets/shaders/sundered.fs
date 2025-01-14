@@ -19,12 +19,22 @@ vec4 dissolve_mask(vec4 final_pixel, vec2 texture_coords, vec2 uv);
 vec4 effect( vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords )
 {
 	vec2 uv = (((texture_coords) * (image_details)) - texture_details.xy * texture_details.zw) / texture_details.zw;
+
+	//Recenter
+	vec2 new_uv = clamp(uv + vec2(0,0.15),0,1);
+	vec2 new_texture_coords = ((new_uv * texture_details.zw) + (texture_details.xy * texture_details.zw)) / image_details;
+	//Recenter
+
 	vec2 origin_uv = uv.xy;
-	vec4 pixel = Texel(texture, texture_coords);
+	vec4 pixel = Texel(texture, new_texture_coords);
+	//vec4 pixel = Texel(texture, texture_coords);
+
+	//Align with other half of card
+	vec2 noise_uv = uv + vec2(0,0.3);
 
 	float t = time * 10.0 + 2003.;
 	t = 0.2;
-	vec2 floored_uv = (floor((uv*texture_details.ba)))/max(texture_details.b, texture_details.a);
+	vec2 floored_uv = (floor((noise_uv*texture_details.ba)))/max(texture_details.b, texture_details.a);
 	vec2 uv_scaled_centered = (floored_uv - 0.5) * 2.3 * max(texture_details.b, texture_details.a);
 	uv_scaled_centered.x *= 5;
 	
@@ -34,12 +44,27 @@ vec4 effect( vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords
 
 	float field = (cos(length(field_part1) / 19.483) + sin(length(field_part2) / 33.155) * cos(field_part2.y / 15.73) +
 		cos(length(field_part3) / 27.193) * sin(field_part3.x / 21.92));
+	
+
+	t = 0.2;
+	//floored_uv = (floor((uv*texture_details.ba)))/max(texture_details.b, texture_details.a);
+	uv_scaled_centered = (floored_uv - 0.5) * 2.3 * max(texture_details.b, texture_details.a);
+	uv_scaled_centered.y += 36.5;
+	
+	field_part1 = uv_scaled_centered + 50.*vec2(sin(-t / 143.6340), cos(-t / 99.4324));
+	field_part2 = uv_scaled_centered + 50.*vec2(cos( t / 53.1532),  cos( t / 61.4532));
+	field_part3 = uv_scaled_centered + 50.*vec2(sin(-t / 87.53218), sin(-t / 49.0000));
+
+	float field_b = (cos(length(field_part1) / 19.483) + sin(length(field_part2) / 33.155) * cos(field_part2.y / 15.73) +
+		cos(length(field_part3) / 27.193) * sin(field_part3.x / 21.92));
+
 
 	float opacity = 1.0;
-	float boundary = uv.y - 0.5;
+	//float boundary = uv.y - 0.5;
+	float boundary = uv.y - 0.35;
 	boundary *= 12;
 	
-	boundary += field;
+	boundary += (field + field_b) / 2.0;
 	if (boundary < 0) {
 		opacity = 0;
 	}

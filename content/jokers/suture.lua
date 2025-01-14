@@ -1,5 +1,5 @@
 local joker = {
-	name = "Suture",
+	name = "rufia-suture",
 	pos = {x = 0, y = 6},
 	soul_pos = { x = 1, y = 6 },
 	rarity = 4,
@@ -16,6 +16,10 @@ local joker = {
 			"or a {C:attention}Ripped{} and {C:attention}Shredded{} copy"}
 	},
 	loc_vars = function(self, info_queue, card)
+		info_queue[#info_queue + 1] = G.P_CENTERS.e_rufia_torn
+		info_queue[#info_queue + 1] = G.P_CENTERS.e_rufia_sundered
+		info_queue[#info_queue + 1] = G.P_CENTERS.e_rufia_ripped
+		info_queue[#info_queue + 1] = G.P_CENTERS.e_rufia_shredded
 		return {
 			vars = {}
 		}
@@ -70,25 +74,28 @@ joker.calculate = function(self, card, context)
 				ripped_copy:set_edition(edition, true)
 				ripped_copy:add_to_deck()
 				G.jokers:emplace(ripped_copy)
+				--ripped_copy:start_materialize() --Too noisy? Unnecessary with the original card's dematerialisng?
 	
 				local shredded_copy = copy_card(context.destroyed_card)
 				edition = {rufia_shredded = true}
 				shredded_copy:set_edition(edition, true)
 				shredded_copy:add_to_deck()
 				G.jokers:emplace(shredded_copy)
-
+				--shredded_copy:start_materialize()
 			else
 				local torn_copy = copy_card(context.destroyed_card)
 				local edition = {rufia_torn = true}
 				torn_copy:set_edition(edition, true)
 				torn_copy:add_to_deck()
 				G.jokers:emplace(torn_copy)
+				--torn_copy:start_materialize()
 	
 				local sundered_copy = copy_card(context.destroyed_card)
 				edition = {rufia_sundered = true}
 				sundered_copy:set_edition(edition, true)
 				sundered_copy:add_to_deck()
 				G.jokers:emplace(sundered_copy)
+				--sundered_copy:start_materialize()
 			end			
 		end
 	end

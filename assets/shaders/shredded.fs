@@ -19,12 +19,22 @@ vec4 dissolve_mask(vec4 final_pixel, vec2 texture_coords, vec2 uv);
 vec4 effect( vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords )
 {
 	vec2 uv = (((texture_coords) * (image_details)) - texture_details.xy * texture_details.zw) / texture_details.zw;
+
+	//Recenter
+	vec2 new_uv = clamp(uv + vec2(0.25,0),0,1);
+	vec2 new_texture_coords = ((new_uv * texture_details.zw) + (texture_details.xy * texture_details.zw)) / image_details;
+	//Recenter
+
 	vec2 origin_uv = uv.xy;
-	vec4 pixel = Texel(texture, texture_coords);
+	vec4 pixel = Texel(texture, new_texture_coords);
+	//vec4 pixel = Texel(texture, texture_coords);
+
+	//Align with other half of card
+	vec2 noise_uv = uv + vec2(0.5,0);
 
 	float t = time * 10.0 + 2003.;
 	t = 0.2;
-	vec2 floored_uv = (floor((uv*texture_details.ba)))/max(texture_details.b, texture_details.a);
+	vec2 floored_uv = (floor((noise_uv*texture_details.ba)))/max(texture_details.b, texture_details.a);
 	vec2 uv_scaled_centered = (floored_uv - 0.5) * 2.3 * max(texture_details.b, texture_details.a);
 	uv_scaled_centered.y *= 5;
 	
@@ -50,7 +60,8 @@ vec4 effect( vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords
 
 
 	float opacity = 1.0;
-	float boundary = uv.x - 0.5;
+	//float boundary = uv.x - 0.5;
+	float boundary = uv.x - 0.25;
 	boundary *= 12;
 
 	boundary += (field + field_b) / 2.0;

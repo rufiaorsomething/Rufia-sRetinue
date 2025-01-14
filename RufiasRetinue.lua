@@ -35,10 +35,12 @@ create_card_late_patched = false
 -- To disable any object, comment it out by adding -- at the start of the line.
 local joker_list = {
 	--- Common
-	--"one_sin",
+	"stop",
+	"withheld number",
 
 	--- Uncommon
-	--"perpetuity",
+	"sign of things to come",
+	"perpetuity",
 
 	--- Rare
 	"patience",
@@ -47,6 +49,14 @@ local joker_list = {
 	"suture",
 	"queen of tarts",
 	"matthias",
+}
+local voucher_list = {
+	--- 'Free' Legendary Joker Voucher
+	"pandoras box",
+	"hope",
+	--- Torn Voucher
+	--"torn asunder",
+	--"ripped to shreds"
 }
 local enhancement_list = {
 	"confection",
@@ -64,8 +74,9 @@ local edition_list = {
 }
 local consumable_list = {
 	--- Tarots
-	"forge",
-	"gluttony",
+	"banquet",
+	"apparatus",
+	"piper",
 	--- Planets
 	--- Spectrals
 	--"disfiguration",
@@ -80,70 +91,7 @@ function get_badge_colour(key)
 	return badge_colors[key] or get_badge_colourref(key)
 end
 
-local amoeba = {
-	name = "Amoeba",
-	slug = 'rufia_amoeba',
-	key = 'rufia_amoeba',
-	desc = {
-		"{X:red,C:white}X#1#{} Mult,",
-		"duplicate this {C:attention}Joker",
-		"when {C:attention}Blind{} is selected",
-		"{C:inactive}(Must have room)"
-	},
-	config = {
-		extra = 1.5
-	},
-	pos = {x = 3, y = 1},
-	rarity = 3,
-	cost = 9,
-	loc_def = function(card) return {
-		card.ability.extra} end,
-	blueprint_compat = false,
-	eternal_compat = false
-}
 
-amoeba.calculate = function(self, context)
-	if context.setting_blind and not self.getting_sliced and #G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit then
-		G.GAME.joker_buffer = G.GAME.joker_buffer + 1
-		G.E_MANAGER:add_event(Event({
-			func = function() 
-				local card = copy_card(self, nil, nil, nil, self.edition and self.edition.negative)
-				card:add_to_deck()
-				G.jokers:emplace(card)
-				card:start_materialize()
-				G.GAME.joker_buffer = 0
-				return true
-			end}))
-		card_eval_status_text(self, 'extra', nil, nil, nil, {message = "Mitosis!"}) 
-	elseif context.joker_main then
-		return {
-			message = localize{type = 'variable', key = 'a_xmult', vars = {self.ability.extra}},
-			Xmult_mod = self.ability.extra
-		}
-	end
-end
-
---SMODS.Joker(amoeba)
-
-local amoeba_joker = SMODS.Joker:new(
-	amoeba.name, 
-	amoeba.slug, 
-	amoeba.config,
-	amoeba.pos,
-	{name = amoeba.name, text = amoeba.desc},
-	amoeba.rarity,
-	amoeba.cost, 
-	nil, 
-	nil, 
-	amoeba.blueprint_compat, 
-	amoeba.eternal_compat, 
-	nil, 
-	'new_jokers',
-	nil
-)
-amoeba_joker.atlas = "Rufia_Jokers"
-amoeba_joker.loc_def = amoeba.loc_def
-amoeba_joker:register()
 
 
 -- Load all jokers
@@ -153,7 +101,14 @@ for _, v in ipairs(joker_list) do
 	--joker.discovered = true
 	if joker.dependency and not (SMODS.Mods[joker.dependency] or {}).can_load then goto continue end
 	joker.key = v
-	joker.atlas = "Rufia_Jokers"
+	local is_big = (joker.atlas == "big")
+
+	if is_big then
+		joker.atlas = "Rufia_Jokers_Big"
+	else
+		joker.atlas = "Rufia_Jokers"
+	end
+
 	--[[if not joker.yes_pool_flag then
 		joker.yes_pool_flag = "allow_abnormalities_in_shop"
 	end]]--
@@ -173,18 +128,48 @@ for _, v in ipairs(joker_list) do
 
 	if not joker.set_sprites then
 		joker_obj.set_sprites = function(self, card, front)
-			card.children.center.atlas = G.ASSET_ATLAS["rufia_Rufia_Jokers"]
+			if (is_big) then
+				card.children.center.atlas = G.ASSET_ATLAS["rufia_Rufia_Jokers_Big"]
+			else
+				card.children.center.atlas = G.ASSET_ATLAS["rufia_Rufia_Jokers"]
+			end
 			card.children.center:set_sprite_pos(card.config.center.pos)
 		end
 	end
 	::continue::
 end
 
---local enh_confection = NFS.load(SMODS.current_mod.path .. 'content/enhancements/confection.lua')()
---local enh_confection = SMODS.load_file("content/enhancements/confection.lua")()
---enh_confection.key = "confection"
---enh_confection.atlas = "Rufia_Modifications"
---SMODS.Enhancement(enh_confection)
+
+-- Load all vouchers
+for _, v in ipairs(voucher_list) do
+	local voucher = SMODS.load_file("content/vouchers/" .. v .. ".lua")()
+
+	--joker.discovered = true
+	if voucher.dependency and not (SMODS.Mods[voucher.dependency] or {}).can_load then goto continue end
+	voucher.key = v
+	voucher.atlas = "Rufia_Vouchers"
+
+	if not voucher.pos then
+		voucher.pos = { x = 0, y = 0 }
+	end
+
+	local voucher_obj = SMODS.Voucher(voucher)
+
+	for k_, v_ in pairs(voucher) do
+		if type(v_) == 'function' then
+			voucher_obj[k_] = voucher[k_]
+		end
+	end
+
+	if not voucher.set_sprites then
+		voucher_obj.set_sprites = function(self, card, front)
+			card.children.center.atlas = G.ASSET_ATLAS["rufia_Rufia_Vouchers"]
+			card.children.center:set_sprite_pos(card.config.center.pos)
+		end
+	end
+	::continue::
+end
+
 
 -- Load all enhancements
 for _, v in ipairs(enhancement_list) do
@@ -234,7 +219,22 @@ for _, v in ipairs(edition_list) do
 
 	::continue::
 end
---[[ -- Load consumables
+
+
+-- local cons = SMODS.load_file("content/consumables/piper.lua")()
+-- cons.key = v
+-- cons.atlas = "Rufia_Consumables"
+-- cons.discovered = true
+-- cons.alerted = true
+-- local cons_obj = SMODS.Consumable(cons)
+
+-- for k_, v_ in pairs(cons) do
+-- 	if type(v_) == 'function' then
+-- 		cons_obj[k_] = cons[k_]
+-- 	end
+-- end
+
+-- Load consumables
 for _, v in ipairs(consumable_list) do
 	local cons = SMODS.load_file("content/consumables/" .. v .. ".lua")()
 
@@ -249,7 +249,7 @@ for _, v in ipairs(consumable_list) do
 			cons_obj[k_] = cons[k_]
 		end
 	end
-end ]]
+end
 
 
 
@@ -261,6 +261,20 @@ SMODS.Atlas({
 	key = "Rufia_Jokers", 
 	atlas_table = "ASSET_ATLAS", 
 	path = "rufia_jokers.png", 
+	px = 71, 
+	py = 95 
+})
+SMODS.Atlas({ 
+	key = "Rufia_Jokers_Big", 
+	atlas_table = "ASSET_ATLAS", 
+	path = "rufia_jokers_big.png", 
+	px = 105, 
+	py = 141 
+})
+SMODS.Atlas({ 
+	key = "Rufia_Vouchers", 
+	atlas_table = "ASSET_ATLAS", 
+	path = "rufia_vouchers.png", 
 	px = 71, 
 	py = 95 
 })

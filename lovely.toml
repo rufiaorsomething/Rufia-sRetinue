@@ -3,7 +3,7 @@ version = "1.0.0"
 dump_lua = true
 priority = 1
 
-# Confection card
+# Confection cards
 [[patches]]
 [patches.pattern]
 target = 'functions/state_events.lua'
@@ -16,39 +16,61 @@ if scoring_hand[i].config.center == G.P_CENTERS.m_rufia_confection and not scori
 	destroyed = true
 end'''
 
-# Shredded cards
+# Null cards
 [[patches]]
 [patches.pattern]
 target = 'functions/state_events.lua'
-pattern = '''--From edition
-				if scoring_hand[i].edition and scoring_hand[i].edition.key then'''
+pattern = '''--If chips added, do chip add event and add the chips to the total
+if effects[ii].chips then'''
 position = 'before'
 match_indent = true
 payload = '''
-				--Shredded Edition
-				if i == 1 and #G.play.cards <= 2 then
-					for j=1, #G.jokers.cards do
-						if G.jokers.cards[j] and not G.jokers.cards[j].debuff and G.jokers.cards[j].edition and G.jokers.cards[j].edition.key == "e_rufia_shredded" then  --and G.jokers[j].edition and G.jokers[j].edition.name == "Shredded" then
-							for k=1, 2 do
-								reps[#reps+1] = {jokers = {
-									message = localize("k_again_ex"),
-									card = G.jokers.cards[j]
-								}}
-							end
-						end
-					end
-					for j=1, #scoring_hand do
-						if scoring_hand[j] and not scoring_hand[j].debuff and scoring_hand[j].edition and scoring_hand[j].edition.key == "e_rufia_shredded" then --and scoring_hand[j].edition.name == "Shredded" then
-							for k=1, 2 do
-								reps[#reps+1] = {seals = {
-									message = localize("k_again_ex"),
-									card = scoring_hand[j]
-								}}
-							end
-						end
-					end
-				end'''
+if effects[ii].level_up then
+	--if effects[ii].card then juice_card(effects[ii].card) end
+	local hand_i = G.GAME.last_hand_played
+	level_up_hand(effects[ii].card, hand_i, true, effects[ii].level_up)
 
+	local col = G.C.GREEN
+	
+	G.E_MANAGER:add_event(Event({
+		trigger = 'after',
+		delay = 0.2,
+		func = function()
+			play_sound('tarot1')
+			if effects[ii].card and effects[ii].card.juice_up then effects[ii].card:juice_up(0.8, 0.5) end
+			G.TAROT_INTERRUPT_PULSE = true
+			return true 
+		end }))
+	mult = mod_mult(mult + G.GAME.hands[hand_i].l_mult)
+	update_hand_text({delay = 0}, {mult = mult, StatusText = true})
+
+	G.E_MANAGER:add_event(Event({
+		trigger = 'after',
+		delay = 0.9,
+		func = function()
+			play_sound('tarot1')
+			if effects[ii].card and effects[ii].card.juice_up then effects[ii].card:juice_up(0.8, 0.5) end
+			return true 
+		end }))
+	hand_chips = mod_chips(hand_chips + G.GAME.hands[hand_i].l_chips)
+	update_hand_text({delay = 0}, {chips = hand_chips, StatusText = true})
+
+	G.E_MANAGER:add_event(Event({
+		trigger = 'after',
+		delay = 0.9,
+		func = function()
+			play_sound('tarot1')
+			if effects[ii].card and effects[ii].card.juice_up then effects[ii].card:juice_up(0.8, 0.5) end
+			G.TAROT_INTERRUPT_PULSE = nil
+			return true
+		end }))
+	update_hand_text(
+		{sound = 'button', volume = 0.7, pitch = 0.9, delay = 0},
+		{level=G.GAME.hands[hand_i].level}
+	)
+	delay(1.3)
+end
+'''
 
 # Hypnotic cards
 [[patches]]
@@ -104,6 +126,73 @@ payload = '''
 			end})
 		end
 	end
+'''
+
+
+
+
+# Shredded cards
+[[patches]]
+[patches.pattern]
+target = 'functions/state_events.lua'
+pattern = '''--From edition
+				if scoring_hand[i].edition and scoring_hand[i].edition.key then'''
+position = 'before'
+match_indent = true
+payload = '''
+--Shredded Edition
+if i == 1 and #G.play.cards <= 2 then
+	for j=1, #G.jokers.cards do
+		if G.jokers.cards[j] and not G.jokers.cards[j].debuff and G.jokers.cards[j].edition and G.jokers.cards[j].edition.key == "e_rufia_shredded" then  --and G.jokers[j].edition and G.jokers[j].edition.name == "Shredded" then
+			for k=1, 2 do
+				reps[#reps+1] = {jokers = {
+					message = localize("k_again_ex"),
+					card = G.jokers.cards[j]
+				}}
+			end
+		end
+	end
+	for j=1, #scoring_hand do
+		if scoring_hand[j] and not scoring_hand[j].debuff and scoring_hand[j].edition and scoring_hand[j].edition.key == "e_rufia_shredded" then --and scoring_hand[j].edition.name == "Shredded" then
+			for k=1, 2 do
+				reps[#reps+1] = {seals = {
+					message = localize("k_again_ex"),
+					card = scoring_hand[j]
+				}}
+			end
+		end
+	end
+end'''
+
+
+
+
+# Resized Jokers
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = 'if center.name == "Wee Joker" and (center.discovered or self.bypass_discovery_center) then'
+position = "before"
+match_indent = true
+payload = '''
+if (center.config.rufia_rescale) and (center.discovered or self.bypass_discovery_center) then 
+    H = H*center.config.rufia_rescale.y
+    W = W*center.config.rufia_rescale.x
+    self.T.h = H
+    self.T.w = W
+end
+'''
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = 'elseif self.config.center.name == "Wee Joker" then'
+position = "before"
+match_indent = true
+payload = '''
+elseif self.config.rufia_rescale then 
+    self.T.h = H*self.config.rufia_rescale.y
+    self.T.w = W*self.config.rufia_rescale.x
 '''
 
 

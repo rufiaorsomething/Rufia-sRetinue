@@ -1,18 +1,21 @@
 local joker = {
-	name = "The Queen of Tarts",
+	name = "rufia-queen of tarts",
+	atlas = "big",
 	pos = {x = 0, y = 0},
-	--soul_pos = { x = 1, y = 6 },
+	soul_pos = { x = 1, y = 0 },
 	rarity = 4,
 	cost = 20,
 	discovered = true,
-	--config = { extra = { money = 3 } },
+	discovered = true,
+	config = { rufia_rescale = {x = 1.479, y = 1.484} },
 	loc_txt = {
 		name = "The Queen of Tarts",
-		text = {"Played Kings become {C:attention}confection cards{}",
+		text = {"Played Kings become {C:attention}Confection Cards{}",
 			"Played Queens grant {C:mult}Mult{}",
 			"equal to their {C:chips}Chips{}."}
 	},
 	loc_vars = function(self, info_queue, card)
+		info_queue[#info_queue + 1] = G.P_CENTERS.m_rufia_confection
 		return {
 			vars = {}
 		}

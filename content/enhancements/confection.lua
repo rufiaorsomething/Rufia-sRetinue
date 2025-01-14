@@ -9,7 +9,7 @@ local enhancement = {
 			"increase the chips of",
 			"cards {C:attention}held in hand{} by",
 			"this card's chips",
-			"destroy this card after scoring"}
+			"Destroy this card after scoring"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return {
@@ -48,6 +48,16 @@ local enhancement = {
 					})
 				--end
 			end
+			-- G.E_MANAGER:add_event(Event({
+			-- 	trigger = 'after',
+			-- 	delay = 0.5,
+			-- 	func = function()
+			-- 		-- Just to give the card a lil extra pause before scoring
+			-- 		-- there's probably a better way to do this
+			-- 		return true
+			-- 	end
+			-- }))
+			delay(1)
 		end
 	end
 }

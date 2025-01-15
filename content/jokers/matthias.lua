@@ -10,7 +10,7 @@ local joker = {
 	enhancement_gate = 'm_gold',
 	loc_txt = {
 		name = "Matthias",
-		text = {"Played {C:attention}Gold Cards{} grant",
+		text = {"Played {C:attention}Gold{} cards grant",
 			"{C:mult}Mult{} equal to your {C:money}${}"}
 	},
 	loc_vars = function(self, info_queue, card)

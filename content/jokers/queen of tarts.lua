@@ -10,7 +10,7 @@ local joker = {
 	config = { rufia_rescale = {x = 1.479, y = 1.484} },
 	loc_txt = {
 		name = "The Queen of Tarts",
-		text = {"Played Kings become {C:attention}Confection Cards{}",
+		text = {"Played Kings become {C:attention}Confection{} cards",
 			"Played Queens grant {C:mult}Mult{}",
 			"equal to their {C:chips}Chips{}."}
 	},

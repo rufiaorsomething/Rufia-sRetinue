@@ -14,9 +14,9 @@ local joker = {
 	enhancement_gate = 'm_rufia_confection',
 	loc_txt = {
 		name = "Gala",
-		text = {"Gains {X:mult,C:white} X#2# {} Mult for each {C:attention}Steel{} Card held in hand",
-				"{C:attention}Destroy{} a random Joker whenever a {C:attention}Steel{} Card is scored",
-				"{C:inactive}(Currently) {X:mult,C:white} X#1# {} Mult"}
+		text = {"Gains {X:mult,C:white} X#2# {} Mult for", "each {C:attention}Steel{} Card held in hand",
+				"{C:attention}Destroy{} a random Joker", "whenever a {C:attention}Steel{} Card is scored",
+				"{C:inactive}(Currently {X:mult,C:white} X#1# {C:inactive} Mult)"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return {

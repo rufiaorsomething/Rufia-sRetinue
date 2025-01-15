@@ -47,11 +47,20 @@ local joker_list = {
 	"nomios",
 	"playground rocker",
 	"white rabbit",
+	--"knave of hearts",
+	"todd weaver",
 
 	--- Uncommon
 	"sign of things to come",
 	"perpetuity",
 	"cake knife",
+	"chastity",
+	"diligence",
+	"humility",
+	"temperance",
+	"gala",
+	"nightcap",
+	"medusa",
 
 	--- Rare
 	"patience",
@@ -273,6 +282,7 @@ end
 -- Debuffing effects
 local should_debuff_ability = {
 	"stop_debuff",
+	--"leech_debuff",
 }
 function SMODS.current_mod.set_debuff(card, should_debuff)
 	if card.ability then

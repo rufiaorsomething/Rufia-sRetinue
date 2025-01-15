@@ -10,8 +10,8 @@ local joker = {
 	},
 	loc_txt = {
 		name = "Nomios",
-		text = {"{C:chips}+#1#{} Mult",
-			"If this card is destroyed, add a random {C:spectral}Spectral{} card to your consumables"}
+		text = {"{C:mult}+#1#{} Mult",
+			"If this card is destroyed,", "add a random {C:spectral}Spectral{} card", "to your consumables"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return {

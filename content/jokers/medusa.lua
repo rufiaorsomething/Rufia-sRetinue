@@ -8,7 +8,7 @@ local joker = {
 	config = {},
 	loc_txt = {
 		name = "Medusa",
-		text = {"{C:attention}Unscoring{} face cards become {C:attention}Stone{} cards when played"}
+		text = {"{C:attention}Unscoring{} face cards", "become {C:attention}Stone{} cards when played"}
 	},
 	loc_vars = function(self, info_queue, card)
 		info_queue[#info_queue + 1] = G.P_CENTERS.m_stone

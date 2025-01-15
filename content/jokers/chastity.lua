@@ -16,7 +16,7 @@ local joker = {
 		name = "Archangel Chastity",
 		text = {"Gains {C:chips}+#2#{} chips whenever blind is selected",
 				"Loses {C:chips}#3#{} chips for each card held in hand",
-				"{C:inactive}(Currently) {C:chips}+#1# {C:inactive} chips"}
+				"{C:inactive}(Currently {C:chips}+#1# {C:inactive} chips)"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return {

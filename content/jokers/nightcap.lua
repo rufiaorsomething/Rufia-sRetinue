@@ -7,21 +7,21 @@ local joker = {
 	discovered = true,
 	config = {
 		extra = {
-			xmult = 1.0,
+			xchips = 1.5,
 		}
 	},
 	enhancement_gate = 'm_rufia_confection',
 	loc_txt = {
 		name = "Nightcap",
 		text = {"First hand is drawn {C:attention}face down{}",
-				"{C:attention}Face down{} cards held in hand grant {X:chips,C:white} X#1#{}",
-				"After discarding {C:attention}4{} or more {C:attention}face down{} cards in a round,",
+				"{C:attention}Face down{} cards {C:attention}held in hand{} grant {X:chips,C:white} X#1# {} chips",
+				"After discarding {C:attention}4{} face down cards in a single round,",
 				"{C:attention}destroy{} a random adjacent Joker"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return {
 			vars = {
-				card.ability.extra.xmult,
+				card.ability.extra.xchips,
 			}
 		}
 	end,

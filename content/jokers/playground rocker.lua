@@ -15,8 +15,8 @@ local joker = {
 	loc_txt = {
 		name = "Playground Rocker?",
 		text = {"{C:green}#1# in #2#{} chance for {X:mult,C:white} X#2# {} Mult",
-			"otherwise, destroy a random adjacent Joker after each hand played",
-			"result determined permanently upon pickup"}
+			"Otherwise, {C:attention}destroy{} a random adjacent Joker", "after each hand played",
+			"{C:inactive}(result determined permanently upon pickup)"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return { 

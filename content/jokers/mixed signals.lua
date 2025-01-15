@@ -8,8 +8,8 @@ local joker = {
 	config = {},
 	loc_txt = {
 		name = "Mixed Signals",
-		text = {"Copies ability of each {C:red}Rare{} Joker on first hand of round",
-			"Copies ability of each {C:green}Uncommon{} Joker on last hand of round"}
+		text = {"Copies ability of each {C:red}Rare{} Joker", "on {C:attention}first hand{} of round",
+			"Copies ability of each {C:green}Uncommon{} Joker", "on {C:attention}final hand{} of round"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return {}
@@ -25,7 +25,7 @@ local function copy_jokers_of_rarity(self, card, context, target_rarity)
 		local other_joker = G.jokers.cards[i]
 		
 		if other_joker and other_joker ~= card
-		and other_joker.config.center.rarity == target_rarity) then
+		and other_joker.config.center.rarity == target_rarity then
 			
 			context.blueprint = (context.blueprint and (context.blueprint + 1)) or 1
 			context.copy_depth = (context.copy_depth and (context.copy_depth + 1)) or 1
@@ -67,7 +67,9 @@ joker.generate_ui = function(self, info_queue, card, desc_nodes, specific_vars, 
 		-- If statement makes it so that this function doesnt activate in the "Joker Unlocked" UI and cause 'Not Discovered' to be stuck in the corner
 		full_UI_table.name = localize{type = 'name', key = self.key, set = self.set, name_nodes = {}, vars = specific_vars or {}}
 	end
+
 	localize{type = 'descriptions', key = self.key, set = self.set, nodes = desc_nodes, vars = self.loc_vars(self, info_queue, card)}
+
 	if card.area and card.area == G.jokers then
 		for i = 1, #card.ability.incompatible_jokers do
 			desc_nodes[#desc_nodes+1] = {
@@ -105,45 +107,45 @@ joker.generate_ui = function(self, info_queue, card, desc_nodes, specific_vars, 
 	end
 end
 
-local function add_incompatible_joker(self, card, joker) {
-	local already_on_list
+local function add_incompatible_joker(self, card, joker)
+	local already_on_list = false
 
 	for i = 1, #card.ability.incompatible_jokers do
 		if card.ability.incompatible_jokers[i] == joker.ability.name then
-			already_on_list
+			already_on_list = true
 		end
 	end
 
 	if not already_on_list then
 		card.ability.incompatible_jokers[#card.ability.incompatible_jokers] = joker.ability.name
 	end
-}
+end
 
 joker.update = function(self, card)
-	if G.STAGE == G.STAGES.RUN then
-		card.ability.incompatible_jokers = {}
+	-- if G.STAGE == G.STAGES.RUN then
+	-- 	card.ability.incompatible_jokers = {}
 
-		for i = 1, #G.jokers.cards do
-			local other_joker = G.jokers.cards[i]
-			--if G.jokers.cards[i] == card then other_joker = G.jokers.cards[i+1] end
-			if other_joker and other_joker ~= card
-				and (other_joker.config.center.rarity == 2 or other_joker.config.center.rarity == 3)
-				and not other_joker.config.center.blueprint_compat then
-				--card.ability.incompatible_jokers[#card.ability.incompatible_jokers] = other_joker
-				add_incompatible_joker(self, card, add_incompatible_joker)
-			end
-		end
+	-- 	for i = 1, #G.jokers.cards do
+	-- 		local other_joker = G.jokers.cards[i]
+	-- 		--if G.jokers.cards[i] == card then other_joker = G.jokers.cards[i+1] end
+	-- 		if other_joker and other_joker ~= card
+	-- 			and (other_joker.config.center.rarity == 2 or other_joker.config.center.rarity == 3)
+	-- 			and not other_joker.config.center.blueprint_compat then
+	-- 			--card.ability.incompatible_jokers[#card.ability.incompatible_jokers] = other_joker
+	-- 			add_incompatible_joker(self, card, add_incompatible_joker)
+	-- 		end
+	-- 	end
 
-		if #card.ability.incompatible_jokers > 4 then
-			card.ability.incompatible_jokers = {
-				card.ability.incompatible_jokers[1],
-				card.ability.incompatible_jokers[2],
-				card.ability.incompatible_jokers[3],
-				card.ability.incompatible_jokers[4],
-				"...",
-			}
-		end
-	end
+	-- 	if #card.ability.incompatible_jokers > 4 then
+	-- 		card.ability.incompatible_jokers = {
+	-- 			card.ability.incompatible_jokers[1],
+	-- 			card.ability.incompatible_jokers[2],
+	-- 			card.ability.incompatible_jokers[3],
+	-- 			card.ability.incompatible_jokers[4],
+	-- 			"...",
+	-- 		}
+	-- 	end
+	-- end
 end
 
 

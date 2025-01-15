@@ -14,7 +14,7 @@ local joker = {
 	loc_txt = {
 		name = "Archangel Diligence",
 		text = {"Gains {X:mult,C:white} X#2# {} Mult for each consecutive played", "hand which is your first hand of round",
-				"{C:inactive}(Currently) {X:mult,C:white} X#1# {C:inactive} Mult"}
+				"{C:inactive}(Currently {X:mult,C:white} X#1# {C:inactive} Mult)"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return {

@@ -27,7 +27,7 @@ local joker = {
 			"{C:attention}12{} rounds played {C:inactive}(Progress: #3#/#5#){}",
 			"{C:attention}Square{} this Joker's chips for every",
 			"{C:attention}12{} antes beaten {C:inactive}(Progress: #4#/#5#){}",
-			"{C:inactive}Currently{} {C:chips}+#1#{} {C:inactive}Chips){}"}
+			"{C:inactive}(Currently{} {C:chips}+#1#{} {C:inactive}Chips){}"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return {
@@ -52,7 +52,7 @@ if is_rare then
 			"{C:attention}12{} hands played {C:inactive}(Progress: #3#/#5#){}",
 			"{C:attention}Square{} this Joker's chips for every",
 			"{C:attention}12{} antes beaten {C:inactive}(Progress: #4#/#5#){}",
-			"{C:inactive}Currently{} {C:chips}+#1#{} {C:inactive}Chips){}"}
+			"{C:inactive}(Currently{} {C:chips}+#1#{} {C:inactive}Chips){}"}
 end
 
 

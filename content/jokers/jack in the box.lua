@@ -13,8 +13,8 @@ local joker = {
 	},
 	loc_txt = {
 		name = "Jack in the Box",
-		text = {"Each scoring {C:attention}Jack{} grants {X:mult,C:white} X#2# {} Mult for each consecutive non-Jack card scored",
-			"{C:inactive}(Currently) {X:mult,C:white} X#1# {C:inactive} Mult"}
+		text = {"Each scoring {C:attention}Jack{} grants {X:mult,C:white} X#2# {} Mult for", "each consecutive non-Jack card scored",
+			"{C:inactive}(Currently {X:mult,C:white} X#1# {C:inactive} Mult)"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return { 
@@ -38,14 +38,14 @@ joker.calculate = function(self, card, context)
 			if not context.blueprint then
 				card.ability.extra.xmult = 1.0
 			end
-
 			return {
 				x_mult = prior_xmult,
 				colour = G.C.RED,
-				card = card
+				message = localize("k_reset"),
+				card = card,
 			}
 		elseif not context.blueprint then
-			card.ability.extra.xmult += card.ability.extra.scaling
+			card.ability.extra.xmult = card.ability.extra.xmult + card.ability.extra.scaling
 		end
 	end
 end

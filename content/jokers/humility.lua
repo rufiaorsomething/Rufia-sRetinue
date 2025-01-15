@@ -7,12 +7,12 @@ local joker = {
 	discovered = true,
 	config = {
 		extra = {
-			blind_reduction
+			blind_reduction = 0.01,
 		}
 	},
 	loc_txt = {
 		name = "Archangel Humility",
-		text = {"Each scoring unenhanced reduces the {C:attention}-#1#% Blind Size{}", "for each scoring unenhanced card played"}
+		text = {"Each card scored reduces Blind by {X:dark_edition,C:white} X#1# {}", "for each scoring {C:attention}unenhanced{} card played"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return {

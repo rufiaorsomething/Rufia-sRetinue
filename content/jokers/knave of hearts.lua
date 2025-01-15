@@ -10,7 +10,7 @@ local joker = {
 	loc_txt = {
 		name = "Knave of Hearts",
 		text = {"{C:attention}Retrigger{} scoring confection cards", "once for each {C:hearts}Heart{} card played",
-				"{C:attention}Discard{} all {C:attention}Non-Jack{} cards held in hand"}
+				"When hand is played, {C:attention}discard{} all {C:attention}Non-Jack{} cards held in hand"}
 	},
 	loc_vars = function(self, info_queue, card)
 		info_queue[#info_queue + 1] = G.P_CENTERS.m_rufia_confection

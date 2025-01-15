@@ -1,5 +1,5 @@
 local joker = {
-	name = "rufia-temperence",
+	name = "rufia-temperance",
 	pos = {x = 0, y = 4},
 	--soul_pos = { x = 1, y = 6 },
 	rarity = 2,
@@ -11,9 +11,9 @@ local joker = {
 		}
 	},
 	loc_txt = {
-		name = "Archangel Temperence",
+		name = "Archangel Temperance",
 		text = {"{C:attention}+#1# Joker Slots",
-				"Debuffs all jokers not adjacent to this one"}
+				"{C:attention}Debuffs{} all jokers not", "adjacent to this one"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return {

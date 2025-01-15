@@ -2,7 +2,7 @@
     "id": "RufiasRetinue",
     "name": "Rufia's Retinue",
     "author": ["Rufia"],
-    "description": "You're off the edge of the map, here there be monsters",
+    "description": "You're off the edge of the map: here there be monsters",
     "prefix": "rufia",
     "main_file": "RufiasRetinue.lua",
     "badge_colour": "FC3A3A",

@@ -2,6 +2,7 @@ local edition = {
 	name = "Sundered",
 	key = "sundered",
 	shader = "sundered",
+	shader_debuff = "sundered_debuff",
 	--atlas = "Joker",
 	--pos = {x=0,y=0},
 	discovered = true,

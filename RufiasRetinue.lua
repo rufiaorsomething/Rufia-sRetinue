@@ -1,8 +1,8 @@
---- Welcome to Lobcorp spaghetti code
+--- Mod structure modelled significantly after the Lobcorp mod structure <3
 
 local current_mod = SMODS.current_mod
 local mod_path = SMODS.current_mod.path
-local config = SMODS.current_mod.config
+local mod_settings = SMODS.current_mod.config
 local folder = string.match(mod_path, "[Mm]ods.*")
 -- Since Cryptid completely overrides create_card, make sure it is only patched later, and only when needed
 create_card_late_patched = false
@@ -30,6 +30,11 @@ create_card_late_patched = false
 -- dark_edition = G.C.DARK_EDITION,
 -- legendary = G.C.RARITY[4],
 -- enhanced = G.C.SECONDARY_SET.Enhanced
+
+
+
+
+
 --=============== STEAMODDED OBJECTS ===============--
 
 -- To disable any object, comment it out by adding -- at the start of the line.
@@ -37,13 +42,20 @@ local joker_list = {
 	--- Common
 	"stop",
 	"withheld number",
+	"jack in the box",
+	"leech",
+	"nomios",
+	"playground rocker",
+	"white rabbit",
 
 	--- Uncommon
 	"sign of things to come",
 	"perpetuity",
+	"cake knife",
 
 	--- Rare
 	"patience",
+	"mixed signals",
 
 	--- Legendary
 	"suture",
@@ -210,6 +222,9 @@ for _, v in ipairs(edition_list) do
 
 	local edition_obj = SMODS.Edition(edition)
 	SMODS.Shader({ key = v, path = v .. ".fs" })
+	if edition.shader_debuff then
+		SMODS.Shader({ key = v .. "_debuff", path = v .. "_debuff" .. ".fs" })
+	end
 
 	for k_, v_ in pairs(edition) do
 		if type(v_) == 'function' then
@@ -252,6 +267,265 @@ for _, v in ipairs(consumable_list) do
 end
 
 
+
+
+
+-- Debuffing effects
+local should_debuff_ability = {
+	"stop_debuff",
+}
+function SMODS.current_mod.set_debuff(card, should_debuff)
+	if card.ability then
+		for _, v in ipairs(should_debuff_ability) do
+			if card.ability[v] then
+				return true
+			end
+		end
+	end
+end
+
+
+
+--=============== CONFIG UI ===============--
+
+local function create_config_node(config_name, label_text)
+	return {
+		n = G.UIT.R,
+		config = {
+			align = "cm", 
+			padding = 0
+		}, 
+		nodes = {
+			{
+				n = G.UIT.C,
+				config = {
+					align = "cr",
+					padding = 0
+				},
+				nodes = {
+					{
+						n = G.UIT.T,
+						config = {
+							text = label_text,--localize('rufia_'..config_name),
+							scale = 0.35,
+							colour = G.C.UI.TEXT_LIGHT
+						}
+					},
+				}
+			},
+			{
+				n = G.UIT.C,
+				config = { 
+					align = "cr",
+					padding = 0.05
+				},
+				nodes = {
+					create_toggle{ 
+						col = true,
+						label = "",
+						scale = 0.85,
+						w = 0,
+						shadow = true,
+						ref_table = mod_settings,
+						ref_value = config_name
+					},
+				}
+			},
+		}
+	}
+end
+
+local function create_config_button(function_name, button_text, description_text)
+	return {
+		n = G.UIT.R,
+		config = {
+			align = "cm",
+			padding = 0.05
+		},
+		nodes = {
+			{
+				n = G.UIT.R,
+				config = {
+					align = "cm",
+					minw = 0.5,
+					maxw = 2,
+					minh = 0.6,
+					padding = 0,
+					r = 0.1,
+					hover = true,
+					colour = G.C.RED,
+					button = function_name,
+					shadow = true,
+					focus_args = {nav = 'wide'}
+				},
+				nodes = {
+					{
+						n = G.UIT.T,
+						config = {
+							text = button_text,
+							scale = 0.35,
+							colour = G.C.UI.TEXT_LIGHT
+						}
+					}
+				}
+			},
+			{
+				n = G.UIT.R,
+				config = {
+					align = "cm",
+					padding = 0
+				},
+				nodes = {
+					{
+						n = G.UIT.T,
+						config = {
+							text = description_text,
+							scale = 0.35,
+							colour = G.C.JOKER_GREY,
+							shadow = true
+						}
+					}
+				}
+			},
+		}
+	}
+end
+
+local function create_config_button_small(function_name, button_text)
+	return {
+		n = G.UIT.C,
+		config = {
+			align = "cm",
+			padding = 0.05
+		},
+		nodes = {
+			{
+				n = G.UIT.R,
+				config = {
+					align = "cm",
+					minw = 0.5,
+					maxw = 2,
+					minh = 0.6,
+					padding = 0.2,
+					r = 0.1,
+					hover = true,
+					colour = G.C.RED,
+					button = function_name,
+					shadow = true,
+					focus_args = {nav = 'wide'}
+				},
+				nodes = {
+					{
+						n = G.UIT.T,
+						config = {
+							text = button_text,
+							scale = 0.35,
+							colour = G.C.UI.TEXT_LIGHT
+						}
+					}
+				}
+			},
+		}
+	}
+end
+
+local function create_config_button_pair(function_suffix, text_left, text_right)
+	return {
+		n = G.UIT.R,
+		config = {
+			align = "cm", 
+			padding = 0.1
+		},
+		nodes = {
+			create_config_button_small("rufia_skip_".. function_suffix, text_left),
+			create_config_button_small("rufia_reset_" .. function_suffix, text_right),
+		}
+	}
+end
+
+
+-- SMODS.current_mod.config_tab = function()
+-- 	return {
+-- 		n = G.UIT.ROOT,
+-- 		config = {
+-- 			r = 0.1,
+-- 			align = "c",
+-- 			padding = 0.1,
+-- 			colour = G.C.BLACK,
+-- 			minh = 6
+-- 		},
+		
+-- 		nodes = {
+-- 		{
+-- 			n = G.UIT.C,
+-- 			config = {
+-- 				align = "t",
+-- 				padding = 0.1
+-- 			},
+-- 			nodes = {
+-- 			--create_config_node("Confection Cards", "Enable Confection Cards"),
+-- 			--create_config_node("Null Cards", "Enable Null Cards"),
+-- 			--create_config_node("Hypnotic Cards", "Enable Hypnotic Cards"),
+-- 			--create_config_node("Soul Vouchers", "Soul Vouchers"),
+-- 			--create_toggle({ label = "Soul Vouchers", ref_table = mod_settings, ref_value = "Soul Vouchers" }),
+-- 			--create_config_node("Explicit Artwork", "Explicit Artwork"),
+			
+-- 			create_toggle({ label = "Confection Cards", ref_table = mod_settings, ref_value = "Soul Vouchers" }),
+-- 			create_toggle({ label = "Null Cards", ref_table = mod_settings, ref_value = "Soul Vouchers" }),
+-- 			create_toggle({ label = "Hypnotic Cards", ref_table = mod_settings, ref_value = "Soul Vouchers" }),
+-- 			create_toggle({ label = "Soul Vouchers", ref_table = mod_settings, ref_value = "Soul Vouchers" }),
+-- 			create_toggle({ label = "Explicit Artwork", ref_table = mod_settings, ref_value = "Explicit Artwork" }),
+
+			
+
+-- 			--create_config_node("Unlock Conditions", "Enable Unlock Conditions"),
+-- 			--create_toggle({ label = "Enable Unlock Conditions", ref_table = mod_settings, "Unlock Conditions" }),
+-- 			--create_config_button("rufia_reset_unlocks", "Reset Unlock Status", "Click this button reset the unlock status of all Rufia's Retinue additions"),
+
+-- 			--create_config_node("Discovery", "Enable Undiscovered Status"),
+-- 			--create_config_button("rufia_reset_discovery", "Undiscover All", "Click this button reset the discovery status of all Rufia's Retinue additions"),	
+			
+
+-- 			create_config_button_pair("discovery", "Discover All", "Reset Discovered"),
+-- 			create_config_button_pair("unlocks", "Unlock All", "Reset Unlocks"),
+
+-- 			--create_config_node("Achievements", "Enable Achievements"),
+-- 			create_toggle({ label = "Enable Achievements", ref_table = mod_settings, ref_value = "Achievements" }),
+-- 			create_config_button("rufia_reset_trophies", "Reset Achievements", "Click this button reset all Rufia's Retinue achievements"),
+
+-- 			}
+-- 		},
+
+-- 		-- {
+-- 		-- 	n = G.UIT.C,
+-- 		-- 	config = {
+-- 		-- 		align = "t",
+-- 		-- 		padding = 0.1
+-- 		-- 	},
+-- 		-- 	nodes = {
+-- 		-- 		create_config_node("show_art_undiscovered"),
+-- 		-- 		create_config_node("disable_ordeals"),
+-- 		-- 		create_config_node("discover_all"),
+-- 		-- 		create_config_node("unlock_challenges"),
+-- 		-- 		create_config_node("lobcorp_music"),
+-- 		-- 		}
+-- 		-- 	},
+-- 		}
+-- 	}
+-- end
+
+G.FUNCS.rufia_reset_trophies = function(e)
+end
+
+G.FUNCS.rufia_skip_unlocks = function(e)
+end
+G.FUNCS.rufia_reset_unlocks = function(e)
+end
+
+G.FUNCS.rufia_skip_discovery = function(e)
+end
+G.FUNCS.rufia_reset_discovery = function(e)
+end
 
 
 

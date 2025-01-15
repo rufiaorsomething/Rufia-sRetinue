@@ -6,7 +6,7 @@ local voucher = {
 	pos = { x = 1, y = 2 },
 	loc_txt = {
 		name = "Hope",
-		text = {"Creates a {C:legendary}Legendary{} Joker", "(Must have room)",}
+		text = {"Creates a {C:legendary}Legendary{} Joker", "{C:inactive}(Must have room){}",}
 	},
 	loc_vars = function(self, info_queue)
 		--info_queue[#info_queue+1] = {set = "Tag", key = "tag_double"}

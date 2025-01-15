@@ -2,6 +2,7 @@ local edition = {
 	name = "Ripped",
 	key = "ripped",
 	shader = "ripped",
+	shader_debuff = "ripped_debuff",
 	--atlas = "Joker",
 	--pos = {x=0,y=0},
 	discovered = true,

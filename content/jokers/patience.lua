@@ -32,12 +32,12 @@ local joker = {
 	loc_vars = function(self, info_queue, card)
 		return {
 			vars = {
-				self.config.extra.chips,
-				self.config.extra.progress_addition,
-				self.config.extra.progress_multiplication,
-				self.config.extra.progress_power,
-				self.config.extra.required_progress,
-				self.config.extra.chipgain
+				card.ability.extra.chips,
+				card.ability.extra.progress_addition,
+				card.ability.extra.progress_multiplication,
+				card.ability.extra.progress_power,
+				card.ability.extra.required_progress,
+				card.ability.extra.chipgain
 			}
 		}
 	end,

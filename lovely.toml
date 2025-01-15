@@ -164,6 +164,48 @@ if i == 1 and #G.play.cards <= 2 then
 	end
 end'''
 
+# Debuff shader for Torn, Sunder, Ripped and Shredded cards
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''self.children.center:draw_shader('debuff', nil, self.ARGS.send_to_shader)'''
+position = 'before'
+match_indent = true
+payload = '''
+if self.edition and self.edition.key == "e_rufia_torn" then	
+	self.children.center:draw_shader('rufia_torn_debuff', nil, self.ARGS.send_to_shader)
+	if self.children.front and self.ability.effect ~= 'Stone Card' and not self.config.center.replace_base_card then
+		self.children.front:draw_shader('rufia_torn_debuff', nil, self.ARGS.send_to_shader)
+	end
+elseif self.edition and self.edition.key == "e_rufia_sundered" then	
+	self.children.center:draw_shader('rufia_sundered_debuff', nil, self.ARGS.send_to_shader)
+	if self.children.front and self.ability.effect ~= 'Stone Card' and not self.config.center.replace_base_card then
+		self.children.front:draw_shader('rufia_sundered_debuff', nil, self.ARGS.send_to_shader)
+	end
+elseif self.edition and self.edition.key == "e_rufia_ripped" then	
+	self.children.center:draw_shader('rufia_ripped_debuff', nil, self.ARGS.send_to_shader)
+	if self.children.front and self.ability.effect ~= 'Stone Card' and not self.config.center.replace_base_card then
+		self.children.front:draw_shader('rufia_ripped_debuff', nil, self.ARGS.send_to_shader)
+	end
+elseif self.edition and self.edition.key == "e_rufia_shredded" then	
+	self.children.center:draw_shader('rufia_shredded_debuff', nil, self.ARGS.send_to_shader)
+	if self.children.front and self.ability.effect ~= 'Stone Card' and not self.config.center.replace_base_card then
+		self.children.front:draw_shader('rufia_shredded_debuff', nil, self.ARGS.send_to_shader)
+	end
+else
+'''
+
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''if self.children.front and self.ability.effect ~= 'Stone Card' and not self.config.center.replace_base_card then
+                        self.children.front:draw_shader('debuff', nil, self.ARGS.send_to_shader)
+                    end'''
+position = 'after'
+match_indent = true
+payload = '''
+end
+'''
 
 
 

@@ -7,6 +7,7 @@ local joker = {
 	cost = 20,
 	discovered = true,
 	config = { rufia_rescale = {x = 1.479, y = 1.484} },
+	enhancement_gate = 'm_gold',
 	loc_txt = {
 		name = "Matthias",
 		text = {"Played {C:attention}Gold Cards{} grant",

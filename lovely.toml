@@ -243,17 +243,44 @@ elseif self.config.rufia_rescale then
 
 
 
+
 # Joker Slot Playing cards
 [[patches]]
 [patches.pattern]
 target = 'card.lua'
-pattern = '''if self.ability.name == 'Caino' and to_big(self.ability.caino_xmult) > to_big(1) then
-							return {
-								message = localize{type='variable',key='a_xmult',vars={self.ability.caino_xmult}},
-								Xmult_mod = self.ability.caino_xmult
-							}
-						end'''
-position = 'after'
+pattern = '''if self.ability.set ~= "Enhanced" and obj.calculate and type(obj.calculate) == 'function' then'''
+position = 'before'
 match_indent = true
 payload = '''
+if context.cardarea == G.jokers and (self.ability.set == "Default" or self.ability.set == "Enhanced") then
+	--print("playing card")
+	if context.joker_main then
+		print("context.joker_main")
+
+		local new_context = {}
+		for k_, v_ in pairs(context) do
+			new_context[k_] = v_
+		end
+		new_context.cardarea = G.play
+
+		--local effect = eval_card(self, new_context)
+		--if obj.calculate and type(obj.calculate) == 'function' then
+		--	local o, t = obj:calculate(self, new_context)
+		--	if o or t then return o, t end
+		--end
+		G.FUNCS.rufia_evaluate_card({self}, 1)
+	elseif context.after and not context.blueprint then
+		print("context.after")
+		G.FUNCS.rufia_destroy_scoring_cards({self})
+	elseif context.after and not context.blueprint then
+		print("context.after")
+		G.FUNCS.rufia_destroy_scoring_cards({self})
+	end
+
+	if obj.calculate and type(obj.calculate) == 'function' then
+		local o, t = obj:calculate(self, context)
+		if o or t then return o, t end
+	end
+
+end
 '''

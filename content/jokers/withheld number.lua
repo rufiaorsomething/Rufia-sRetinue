@@ -38,9 +38,15 @@ local joker = {
 			card.ability.extra.discovered_digits = {"?", "?", "?", "?", "?"}
 		end
 
+		-- debug display, remove later
 		if card.ability.extra.digits then
 			for i = 1, #card.ability.extra.digits do
-				card.ability.extra.discovered_digits[i] = card.ability.extra.digits[i]
+				if card.ability.extra.digits[i] == 14 then
+					card.ability.extra.discovered_digits[i] = 1
+				else
+					card.ability.extra.discovered_digits[i] = card.ability.extra.digits[i]
+				end
+				--card.ability.extra.discovered_digits[i] = card.ability.extra.digits[i]
 			end
 		end
 
@@ -73,13 +79,29 @@ joker.calculate = function(self, card, context)
 
 		if other_card_pos and other_card_pos > 5 then other_card_pos = nil end
 
-		if other_card_pos and context.other_card:get_id() == card.ability.extra.digits[other_card_pos] then
-			card.ability.extra.discovered_digits[other_card_pos] = card.ability.extra.digits[other_card_pos]
-			return {
-				x_mult = card.ability.extra.xmult,
-				colour = G.C.RED,
-				card = card
-			}
+		--local is_match = other_card_pos and context.other_card:get_id() == card.ability.extra.digits[other_card_pos]
+		-- if other_card_pos and card.ability.extra.digits[other_card_pos] == 1 and context.other_card:get_id() = 14 then
+		-- 	is_match = true
+		-- end 
+		if other_card_pos then
+			local is_match = context.other_card:get_id() == card.ability.extra.digits[other_card_pos]
+			if card.ability.extra.digits[other_card_pos] == 0 and SMODS.has_no_rank(context.other_card) and not context.other_card.vampired then
+				is_match = true
+			end
+			
+			if is_match then
+				if card.ability.extra.digits[other_card_pos] == 14 then
+					card.ability.extra.discovered_digits[other_card_pos] = 1
+				else
+					card.ability.extra.discovered_digits[other_card_pos] = card.ability.extra.digits[other_card_pos]
+				end
+
+				return {
+					x_mult = card.ability.extra.xmult,
+					colour = G.C.RED,
+					card = card
+				}
+			end
 		end
 	end
 end
@@ -87,12 +109,17 @@ end
 joker.add_to_deck = function(self, card, from_debuff)
 	if not card.ability.extra.digits then
 		card.ability.extra.digits = {
-			pseudorandom("rufia-withheld number", 1, 9),
-			pseudorandom("rufia-withheld number", 1, 9),
-			pseudorandom("rufia-withheld number", 1, 9),
-			pseudorandom("rufia-withheld number", 1, 9),
-			pseudorandom("rufia-withheld number", 1, 9),
+			pseudorandom("rufia-withheld number", 0, 9),
+			pseudorandom("rufia-withheld number", 0, 9),
+			pseudorandom("rufia-withheld number", 0, 9),
+			pseudorandom("rufia-withheld number", 0, 9),
+			pseudorandom("rufia-withheld number", 0, 9),
 		}
+		for i=1, #card.ability.extra.digits do
+			if card.ability.extra.digits[i] == 1 then
+				card.ability.extra.digits[i] = 14
+			end
+		end
 	end
 end
 

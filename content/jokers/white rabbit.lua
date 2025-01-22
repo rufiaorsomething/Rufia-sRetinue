@@ -25,7 +25,7 @@ local joker = {
 		}
 	end,
 	blueprint_compat = true,
-	eternal_compat = true,
+	eternal_compat = false,
 	perishable_compat = true,
 }
 

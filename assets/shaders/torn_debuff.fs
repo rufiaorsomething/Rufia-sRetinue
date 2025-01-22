@@ -103,7 +103,9 @@ vec4 effect( vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords
 
 	//Torn Rendering Start
 
+	float opacity = 1.0;
 	//Recenter
+	if (uv.y - 0.15 < 0) { opacity = 0; }
 	vec2 new_uv = clamp(uv - vec2(0,0.15),0,1);
 	vec2 new_texture_coords = ((new_uv * texture_details.zw) + (texture_details.xy * texture_details.zw)) / image_details;
 	//Recenter
@@ -140,7 +142,6 @@ vec4 effect( vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords
 	float field_b = (cos(length(field_part1) / 19.483) + sin(length(field_part2) / 33.155) * cos(field_part2.y / 15.73) +
 		cos(length(field_part3) / 27.193) * sin(field_part3.x / 21.92));
 
-	float opacity = 1.0;
 	//float boundary = uv.y - 0.5;
 	float boundary = uv.y - 0.65;
 	boundary *= 12;

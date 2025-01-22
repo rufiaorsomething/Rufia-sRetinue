@@ -49,6 +49,7 @@ local joker_list = {
 	"white rabbit",
 	--"knave of hearts",
 	"todd weaver",
+	"cheshire",
 
 	--- Uncommon
 	"sign of things to come",
@@ -61,6 +62,9 @@ local joker_list = {
 	"gala",
 	"nightcap",
 	"medusa",
+	"euryale",
+	"stheno",
+	"langwidere",
 
 	--- Rare
 	"patience",

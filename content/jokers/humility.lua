@@ -7,17 +7,25 @@ local joker = {
 	discovered = true,
 	config = {
 		extra = {
-			blind_reduction = 0.01,
+			blind_reduction = 1.52,
+			scaling = 0.01,
 		}
 	},
+	-- loc_txt = {
+	-- 	name = "Archangel Humility",
+	-- 	text = {"Each scored {C:attention}2{} gives {X:dark_edition,C:white} /#2# {} Blind Size", "for each {C:attention}unenhanced{} card in your {C:attention}full deck{}",
+	-- 			"{C:inactive}(Currently {X:dark_edition,C:white} /#1# {C:inactive} Blind Size)"}
+	-- },
 	loc_txt = {
 		name = "Archangel Humility",
-		text = {"Each card scored reduces Blind by {X:dark_edition,C:white} X#1# {}", "for each scoring {C:attention}unenhanced{} card played"}
+		text = {"Each scored {C:attention}2{} gives {X:dark_edition,C:white} /#2# {} Blind Size", "for each {C:attention}unenhanced{} card scored this round",
+				"{C:inactive}(Currently {X:dark_edition,C:white} /#1# {C:inactive} Blind Size)"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return {
 			vars = {
 				card.ability.extra.blind_reduction,
+				card.ability.extra.scaling,
 			}
 		}
 	end,

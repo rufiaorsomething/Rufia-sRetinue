@@ -9,7 +9,7 @@ local cons = {
 	config = {mod_conv = 'm_rufia_confection', max_highlighted = 1},
 	pos = {x = 0, y = 1},
 	loc_txt = {
-		name = "The Piper",
+		name = "The Banquet",
 		text = {"Enhance {C:attention}#1#{} selected card",
 			"into a {C:attention}Confection Card{}"}
 	},

@@ -103,7 +103,9 @@ vec4 effect( vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords
 
 	//Shredded Rendering Start
 
+	float opacity = 1.0;
 	//Recenter
+	if (uv.x + 0.25 > 1) { opacity = 0; }
 	vec2 new_uv = clamp(uv + vec2(0.25,0),0,1);
 	vec2 new_texture_coords = ((new_uv * texture_details.zw) + (texture_details.xy * texture_details.zw)) / image_details;
 	//Recenter
@@ -142,7 +144,7 @@ vec4 effect( vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords
 		cos(length(field_part3) / 27.193) * sin(field_part3.x / 21.92));
 
 
-	float opacity = 1.0;
+
 	//float boundary = uv.x - 0.5;
 	float boundary = uv.x - 0.25;
 	boundary *= 12;

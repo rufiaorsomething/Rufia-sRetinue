@@ -80,11 +80,16 @@ pattern = '''check_for_unlock({type = 'hand', handname = text, disp_text = non_l
 position = 'after'
 match_indent = true
 payload = '''
-	local hypnotics_in_hand = {}
+	--local hypnotics_in_hand = {}
+	for hyp=1, #scoring_hand do
+		scoring_hand[hyp].hypnotic_in_hand = nil
+	end
+
 	for hyp=1, #G.hand.cards do
 		if G.hand.cards[hyp].config.center == G.P_CENTERS.m_rufia_hypnotic and not G.hand.cards[hyp].debuff then
 			scoring_hand[#scoring_hand + 1] = G.hand.cards[hyp]
-			hypnotics_in_hand[#hypnotics_in_hand + 1] = G.hand.cards[hyp]
+			--hypnotics_in_hand[#hypnotics_in_hand + 1] = G.hand.cards[hyp]
+			G.hand.cards[hyp].hypnotic_in_hand = true
 			highlight_card(G.hand.cards[hyp],(#scoring_hand - 0.999)/5,'up')
 		end
 	end
@@ -104,15 +109,8 @@ match_indent = true
 payload = '''
 	if scoring_hand[i].config.center == G.P_CENTERS.m_rufia_hypnotic and not scoring_hand[i].debuff then
 
-		local is_in_hand = false
-		for hyp=1, #hypnotics_in_hand do
-			if scoring_hand[i] == hypnotics_in_hand[hyp] then
-				is_in_hand = true
-				break
-			end
-		end
+		if scoring_hand[i].hypnotic_in_hand then
 
-		if is_in_hand then
 			local hypnotic_effects = {{scored_hypnotic = true }}
 			eval2 = eval_card(G.jokers.cards[j], {card_effects = hypnotic_effects, retrigger_hypnotics = true, cardarea = G.hand, full_hand = G.play.cards, scoring_hand = scoring_hand, scoring_name = text, poker_hands = poker_hands, other_card = scoring_hand[i], repetition = true, 
 			callback = function(card, ret)
@@ -141,7 +139,12 @@ position = 'before'
 match_indent = true
 payload = '''
 --Shredded Edition
-if i == 1 and #G.play.cards <= 2 then
+local is_in_play = false
+for i_hand=1, #G.play.cards do
+	if scoring_hand[i] == G.play.cards[i_hand] then is_in_play = true end
+end
+
+if is_in_play and i == 1 and #G.play.cards <= 2 then
 	for j=1, #G.jokers.cards do
 		if G.jokers.cards[j] and not G.jokers.cards[j].debuff and G.jokers.cards[j].edition and G.jokers.cards[j].edition.key == "e_rufia_shredded" then  --and G.jokers[j].edition and G.jokers[j].edition.name == "Shredded" then
 			for k=1, 2 do
@@ -255,25 +258,12 @@ payload = '''
 if context.cardarea == G.jokers and (self.ability.set == "Default" or self.ability.set == "Enhanced") then
 	--print("playing card")
 	if context.joker_main then
-		print("context.joker_main")
+		--print("context.joker_main")
 
-		local new_context = {}
-		for k_, v_ in pairs(context) do
-			new_context[k_] = v_
-		end
-		new_context.cardarea = G.play
-
-		--local effect = eval_card(self, new_context)
-		--if obj.calculate and type(obj.calculate) == 'function' then
-		--	local o, t = obj:calculate(self, new_context)
-		--	if o or t then return o, t end
-		--end
-		G.FUNCS.rufia_evaluate_card({self}, 1)
+		--G.FUNCS.rufia_evaluate_card({self}, 1)
+		G.FUNCS.rufia_evaluate_card_retriggered({self}, 1)
 	elseif context.after and not context.blueprint then
-		print("context.after")
-		G.FUNCS.rufia_destroy_scoring_cards({self})
-	elseif context.after and not context.blueprint then
-		print("context.after")
+		--print("context.after")
 		G.FUNCS.rufia_destroy_scoring_cards({self})
 	end
 
@@ -282,5 +272,19 @@ if context.cardarea == G.jokers and (self.ability.set == "Default" or self.abili
 		if o or t then return o, t end
 	end
 
+end
+'''
+
+# Disable Joker Slot Playing cards edition in eval_cards
+# They get triggered elsewhere
+[[patches]]
+[patches.pattern]
+target = 'functions/state_events.lua'
+pattern = '''local edition_effects = eval_card(_card, {cardarea = G.jokers, full_hand = G.play.cards, scoring_hand = scoring_hand, scoring_name = text, poker_hands = poker_hands, edition = true})'''
+position = "after"
+match_indent = true
+payload = '''
+if _card.ability.set == "Default" or _card.ability.set == "Enhanced" then
+	edition_effects = {}
 end
 '''

@@ -299,6 +299,57 @@ function SMODS.current_mod.set_debuff(card, should_debuff)
 end
 
 
+--Ortalab Compat
+local card_highlight = Card.highlight
+function Card:highlight(highlighted)
+	card_highlight(self, highlighted)
+	-- --print("card highlighted")
+	-- if highlighted and self.config.center_key == 'm_ortalab_index' and self.area == G.jokers and #G.jokers.highlighted == 1 and not G.booster_pack then
+    --     -- self.children.use_button = UIBox{
+    --     --     definition = G.UIDEF.use_index_buttons(self), 
+    --     --     config = {align = 'cl', offset = {x=0.5, y=0}, parent = self, id = 'ortalab_index'}
+    --     -- }
+	-- 	local x_off = (self.ability.consumeable and -0.1 or 0)
+	-- 	self.children.use_button = UIBox{
+	-- 		definition = G.UIDEF.use_and_sell_buttons(self), 
+	-- 		config = {align=
+	-- 				((self.area == G.jokers) or (self.area == G.consumeables)) and "cr" or
+	-- 				"bmi"
+	-- 			, offset = 
+	-- 				((self.area == G.jokers) or (self.area == G.consumeables)) and {x=x_off - 0.4,y=0} or
+	-- 				{x=0,y=0.65},
+	-- 			parent =self}
+	-- 	}
+	-- end
+	if self.config.center_key == 'm_ortalab_index' and self.area == G.jokers and not G.booster_pack then
+		self.highlighted = highlighted
+		if true then
+			if self.highlighted and self.area and self.area.config.type ~= 'shop' then
+				local x_off = (self.ability.consumeable and -0.1 or 0)
+				self.children.sell_button = UIBox{
+					definition = G.UIDEF.use_and_sell_buttons(self), 
+					config = {align=
+							((self.area == G.jokers) or (self.area == G.consumeables)) and "cr" or
+							"bmi"
+						, offset = 
+							((self.area == G.jokers) or (self.area == G.consumeables)) and {x=x_off - 0.4,y=0} or
+							{x=0,y=0.65},
+						parent =self}
+				}
+			elseif self.children.sell_button then
+				self.children.sell_button:remove()
+				self.children.sell_button = nil
+			end
+		end
+		if self.ability.consumeable or self.ability.set == 'Joker' then
+			if not self.highlighted and self.area and self.area.config.type == 'joker' and
+				(#G.jokers.cards >= G.jokers.config.card_limit or (self.edition and self.edition.negative)) then
+					if G.shop_jokers then G.shop_jokers:unhighlight_all() end
+			end
+		end
+	end
+end
+
 
 --=============== CONFIG UI ===============--
 

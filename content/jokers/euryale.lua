@@ -1,5 +1,5 @@
 local joker = {
-	name = "rufia-euryale",
+	key = "euryale",
 	pos = {x = 0, y = 0},
 	--soul_pos = { x = 1, y = 6 },
 	rarity = 1,

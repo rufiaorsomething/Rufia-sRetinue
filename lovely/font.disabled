@@ -1,0 +1,38 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 0
+
+
+
+
+# Switch regular m6x11 font for one with √ symbol
+[[patches]]
+[patches.pattern]
+target = 'game.lua'
+pattern = '''Game = Object:extend()'''
+position = 'after'
+match_indent = true
+payload = '''
+local nativefs = require("nativefs")
+local lovely = require("lovely")
+'''
+
+
+[[patches]]
+[patches.pattern]
+target = 'game.lua'
+pattern = '''v.FONT = love.graphics.newFont( v.file, v.render_scale)'''
+position = 'at'
+match_indent = true
+payload = '''
+if v.file == "resources/fonts/m6x11plus.ttf" then
+    local rufia_temp_file = nativefs.read(lovely.mod_dir .. "/Rufia'sRetinue/assets/fonts/m6x11plus.ttf")
+    love.filesystem.write("temp-font.ttf", rufia_temp_file)
+    G.LANG.font.FONT = love.graphics.newFont("temp-font.ttf", v.render_scale)
+    love.filesystem.remove("temp-font.ttf")
+else
+    v.FONT = love.graphics.newFont( v.file, v.render_scale)
+end
+'''
+

@@ -20,6 +20,38 @@ end
 '''
 
 
+# Trance compat for m6x11++
+[[patches]]
+[patches.pattern]
+target = 'main.lua'
+pattern = '''local file = NFS.read(lovely.mod_dir .. "/Trance/fonts/"..(Trance_config.font or "m6x11")..".ttf")'''
+position = 'at'
+match_indent = true
+payload = '''
+local file = nil
+if (Trance_config.font and Trance_config.font ~= "m6x11") then
+    file = NFS.read(lovely.mod_dir .. "/Trance/fonts/"..Trance_config.font..".ttf")
+else
+    file = NFS.read(lovely.mod_dir .. "/Rufia'sRetinue/assets/fonts/m6x11++.ttf")
+end
+'''
+
+[[patches]]
+[patches.pattern]
+target = 'main.lua'
+pattern = '''local file = NFS.read(lovely.mod_dir .. "/Trance/fonts/"..Trance_config.font..".ttf")'''
+position = 'at'
+match_indent = true
+payload = '''
+local file = nil
+if (Trance_config.font ~= "m6x11") then
+    file = NFS.read(lovely.mod_dir .. "/Trance/fonts/"..Trance_config.font..".ttf")
+else
+    file = NFS.read(lovely.mod_dir .. "/Rufia'sRetinue/assets/fonts/m6x11++.ttf")
+end
+'''
+
+
 
 
 # Ortalab compat - joker slot cosmic cards

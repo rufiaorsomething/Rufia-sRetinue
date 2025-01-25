@@ -40,40 +40,136 @@ create_card_late_patched = false
 -- To disable any object, comment it out by adding -- at the start of the line.
 local joker_list = {
 	--- Common
-	"stop",
-	"withheld number",
-	"jack in the box",
-	"leech",
-	"nomios",
-	"playground rocker",
-	"white rabbit",
-	--"knave of hearts",
-	"todd weaver",
-	"cheshire",
+	"pedestrian/stop",
+	"pedestrian/withheld number",
+	--"queen of tarts/white rabbit",
+	--"queen of tarts/cheshire",
+	--"queen of tarts/mad hatter",
+	--"queen of tarts/the march hare",
+	--"queen of tarts/the dormouse",
+	--"queen of tarts/knave of hearts",
+	--"queen of tarts/cowgirl",
+	--"queen of tarts/bread and butterfly",
+	--"queen of tarts/flamingo lollipop",
+	--"queen of tarts/gummy catterpillar",
+	--"queen of tarts/jabberwock",
+	--"queen of tarts/candyfloss sheep",
+	--"queen of tarts/tweedledee",
+	--"queen of tarts/tweedledum",
+	--"queen of tarts/humpty dumpty",
+	--"queen of tarts/page of hearts",
+	--"queen of tarts/page of tiles",
+	--"queen of tarts/page of pikes",
+	--"queen of tarts/page of clovers",
+	--"suture/handy hydra/the beadle",
+	--"suture/handy hydra/the constable",
+	--"suture/hobby horse",
+	--"suture/jack in the box",
+	--"suture/playground rocker",
+	"suture/todd weaver",
+	--"demons/drone",
+	--"leech",
+	--"nomios",
+	--"follyfish",
+	--"anasdesia",
+	--"orran",
+	--"rat maid",
 
 	--- Uncommon
-	"sign of things to come",
-	"perpetuity",
-	"cake knife",
-	"chastity",
-	"diligence",
-	"humility",
-	"temperance",
-	"gala",
-	"nightcap",
-	"medusa",
-	"euryale",
-	"stheno",
-	"langwidere",
+	--"medusa",
+	--"euryale",
+	--"stheno",
+	"pedestrian/sign of things to come",
+	--"matthias/calliope",
+	--"matthias/clio",
+	--"matthias/erato",
+	--"matthias/euterpe",
+	--"matthias/melpomene",
+	--"matthias/polyhymnia",
+	--"matthias/thalia",
+	--"matthias/urania",
+	--"matthias/terpsichore",
+	"queen of tarts/cake knife",
+	--"queen of tarts/amber slime",
+	--"queen of tarts/caramel imp",
+	--"queen of tarts/gummy frog",
+	--"queen of tarts/taiyaki fish",
+	--"queen of tarts/white rose",
+	--"suture/handy hydra/punch",
+	--"suture/handy hydra/the devil",
+	--"suture/handy hydra/the puppeteers",
+	--"suture/handy hydra/the hangman",
+	--"suture/handy hydra/the skeleton",
+	--"suture/handy hydra/the mime",
+	"suture/langwidere",
+	--"suture/lophop",
+	--"suture/hopper",
+	--"suture/gala",
+	--"suture/nightcap",
+	--"suture/owl",
+	--"suture/possum",
+	-- "suture/perpetuity",
+	-- "suture/obedience",
+	-- "suture/silence",
+	-- "suture/adversity",
+	-- "suture/shame",
+	-- "suture/proliferation",
+	-- "suture/trust",
+	--"judgement hour",
 
 	--- Rare
-	"patience",
-	"mixed signals",
+	"pedestrian/mixed signals",
+	--"matthias/ziggurat",
+	--"queen of tarts/queen bee",
+	--"queen of tarts/the red queen",
+	--"queen of tarts/the white queen",
+	--"queen of tarts/duchess of hearts",
+	--"queen of tarts/duchess of tiles",
+	--"queen of tarts/duchess of pikes",
+	--"queen of tarts/duchess of clovers",
+	--"suture/handy hydra/handy hydra",
+	--"suture/handy hydra/the crocodile",
+	"angels/patience",
+	--"angels/chastity",
+	--"angels/diligence",
+	--"angels/humility",
+	--"angels/temperance",
+	--"angels/charity",
+	--"angels/kindness",
+	--"angels/pandaemonium",
+	--"demons/dantelian",
+	--"demons/karabas",
+	--"demons/narcissus",
+	--"en-v",
 
 	--- Legendary
-	"suture",
-	"queen of tarts",
-	"matthias",
+	"matthias/matthias",
+	"queen of tarts/queen of tarts",
+	"suture/suture",
+	-- "angels/archangel assimilation",
+	-- "angels/tryphochor",
+	-- "demons/voyeur",
+	-- "demons/malphas",
+	-- "coronet",
+	-- "mr light",
+	-- "inferno",
+	-- "purgatorio",
+	-- "paradiso",
+	-- "the empress",
+	-- "the great god nym",
+	--"maw",
+
+	--- Special
+	-- "suture/obedience/precept 1",
+	-- "suture/obedience/precept 2",
+	-- "suture/obedience/precept 3",
+	-- "suture/obedience/precept 4",
+	-- "suture/obedience/precept 5",
+	-- "suture/obedience/precept 6",
+	-- "suture/obedience/precept 7",
+	-- "suture/obedience/precept 8",
+	-- "suture/obedience/precept 9",
+	-- "suture/obedience/precept 10",
 }
 local voucher_list = {
 	--- 'Free' Legendary Joker Voucher
@@ -118,6 +214,16 @@ end
 
 
 
+-- Load Modified m6x11 Font
+local nativefs = require("nativefs")
+local lovely = require("lovely")
+
+local font_path = mod_path.."assets/fonts/m6x11++.ttf"
+local file = nativefs.read(font_path)
+love.filesystem.write("temp-font.ttf", file)
+G.LANG.font.FONT = love.graphics.newFont("temp-font.ttf", G.TILESIZE * 10)
+love.filesystem.remove("temp-font.ttf")
+
 
 -- Load all jokers
 for _, v in ipairs(joker_list) do
@@ -125,11 +231,17 @@ for _, v in ipairs(joker_list) do
 
 	--joker.discovered = true
 	if joker.dependency and not (SMODS.Mods[joker.dependency] or {}).can_load then goto continue end
-	joker.key = v
+	
+	if not joker.key then joker.key = v end
+	if not joker.name then joker.name = "rufia-" .. joker.key end
+	
 	local is_big = (joker.atlas == "big")
+	local is_really_big = (joker.atlas == "really_big")
 
 	if is_big then
 		joker.atlas = "Rufia_Jokers_Big"
+	elseif is_really_big then
+		joker.atlas = "Rufia_Jokers_Really_Big"
 	else
 		joker.atlas = "Rufia_Jokers"
 	end
@@ -155,6 +267,8 @@ for _, v in ipairs(joker_list) do
 		joker_obj.set_sprites = function(self, card, front)
 			if (is_big) then
 				card.children.center.atlas = G.ASSET_ATLAS["rufia_Rufia_Jokers_Big"]
+			elseif (is_really_big) then
+				card.children.center.atlas = G.ASSET_ATLAS["rufia_Rufia_Jokers_Really_Big"]
 			else
 				card.children.center.atlas = G.ASSET_ATLAS["rufia_Rufia_Jokers"]
 			end
@@ -609,6 +723,13 @@ SMODS.Atlas({
 	path = "rufia_jokers_big.png", 
 	px = 105, 
 	py = 141 
+})
+SMODS.Atlas({ 
+	key = "Rufia_Jokers_Really_Big", 
+	atlas_table = "ASSET_ATLAS", 
+	path = "rufia_jokers_really_big.png", 
+	px = 139, 
+	py = 187 
 })
 SMODS.Atlas({ 
 	key = "Rufia_Vouchers", 

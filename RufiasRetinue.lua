@@ -413,56 +413,138 @@ function SMODS.current_mod.set_debuff(card, should_debuff)
 end
 
 
---Ortalab Compat
-local card_highlight = Card.highlight
-function Card:highlight(highlighted)
-	card_highlight(self, highlighted)
-	-- --print("card highlighted")
-	-- if highlighted and self.config.center_key == 'm_ortalab_index' and self.area == G.jokers and #G.jokers.highlighted == 1 and not G.booster_pack then
-    --     -- self.children.use_button = UIBox{
-    --     --     definition = G.UIDEF.use_index_buttons(self), 
-    --     --     config = {align = 'cl', offset = {x=0.5, y=0}, parent = self, id = 'ortalab_index'}
-    --     -- }
-	-- 	local x_off = (self.ability.consumeable and -0.1 or 0)
-	-- 	self.children.use_button = UIBox{
-	-- 		definition = G.UIDEF.use_and_sell_buttons(self), 
-	-- 		config = {align=
-	-- 				((self.area == G.jokers) or (self.area == G.consumeables)) and "cr" or
-	-- 				"bmi"
-	-- 			, offset = 
-	-- 				((self.area == G.jokers) or (self.area == G.consumeables)) and {x=x_off - 0.4,y=0} or
-	-- 				{x=0,y=0.65},
-	-- 			parent =self}
-	-- 	}
-	-- end
-	if self.config.center_key == 'm_ortalab_index' and self.area == G.jokers and not G.booster_pack then
-		self.highlighted = highlighted
-		if true then
-			if self.highlighted and self.area and self.area.config.type ~= 'shop' then
-				local x_off = (self.ability.consumeable and -0.1 or 0)
-				self.children.sell_button = UIBox{
-					definition = G.UIDEF.use_and_sell_buttons(self), 
-					config = {align=
-							((self.area == G.jokers) or (self.area == G.consumeables)) and "cr" or
-							"bmi"
-						, offset = 
-							((self.area == G.jokers) or (self.area == G.consumeables)) and {x=x_off - 0.4,y=0} or
-							{x=0,y=0.65},
-						parent =self}
-				}
-			elseif self.children.sell_button then
-				self.children.sell_button:remove()
-				self.children.sell_button = nil
+local smods_calculate_repetitions = SMODS.calculate_repetitions
+SMODS.calculate_repetitions = function(card, context, reps)
+	reps = smods_calculate_repetitions(card, context, reps)
+	
+	--Hypnotic Cards Held in Hand
+	if card.config.center == G.P_CENTERS.m_rufia_hypnotic and not card.debuff
+		and context.cardarea == G.play and card.hypnotic_in_hand then
+		
+		
+		context.retrigger_hypnotics = true
+		context.cardarea = G.hand
+
+
+		--From jokers
+		for _, area in ipairs(SMODS.get_card_areas('jokers')) do
+			for _, _card in ipairs(area.cards) do
+			--calculate the joker effects
+				local eval, post = eval_card(_card, context)
+				if next(post) then SMODS.trigger_effects({post}, card) end
+				local rt = eval and eval.retriggers and #eval.retriggers or 0
+				for key, value in pairs(eval) do
+					if value.repetitions and key ~= 'retriggers' then
+	
+						for h=1, value.repetitions do
+							value.card = value.card or _card
+							reps[#reps+1] = {key = value}
+							for i=1, rt do
+								local rt_eval, rt_post = eval_card(_card, context)
+								rt_eval.card = rt_eval.card or _card
+								reps[#reps+1] = {key = value}
+								if next(rt_post) then SMODS.trigger_effects({rt_post}, card) end
+							end
+						end
+					end
+				end
 			end
 		end
-		if self.ability.consumeable or self.ability.set == 'Joker' then
-			if not self.highlighted and self.area and self.area.config.type == 'joker' and
-				(#G.jokers.cards >= G.jokers.config.card_limit or (self.edition and self.edition.negative)) then
-					if G.shop_jokers then G.shop_jokers:unhighlight_all() end
+
+		context.retrigger_hypnotics = nil
+		context.cardarea = G.play
+	end
+
+	--Shredded Edition
+	if context.cardarea == G.play then
+		local self_index = nil
+		--local is_in_play = false
+		for i_hand=1, #G.play.cards do
+			if card == G.play.cards[i_hand] then self_index = i_hand end--is_in_play = true end
+		end
+	
+		--if is_in_play and i == 1 and #G.play.cards <= 2 then
+		if self_index and self_index == 1 and #G.play.cards <= 2 then
+			for j=1, #G.jokers.cards do
+				if G.jokers.cards[j] and not G.jokers.cards[j].debuff and G.jokers.cards[j].edition and G.jokers.cards[j].edition.key == "e_rufia_shredded" then  --and G.jokers[j].edition and G.jokers[j].edition.name == "Shredded" then
+					for k=1, 2 do
+						reps[#reps+1] = {jokers = {
+							message = localize("k_again_ex"),
+							card = G.jokers.cards[j]
+						}}
+					end
+				end
+			end
+			for j=1, #context.scoring_hand do
+				if context.scoring_hand[j] and not context.scoring_hand[j].debuff and context.scoring_hand[j].edition and context.scoring_hand[j].edition.key == "e_rufia_shredded" then --and scoring_hand[j].edition.name == "Shredded" then
+					for k=1, 2 do
+						reps[#reps+1] = {seals = {
+							message = localize("k_again_ex"),
+							card = context.scoring_hand[j]
+						}}
+					end
+				end
 			end
 		end
 	end
+	
+	return reps
 end
+
+
+
+
+
+-- --Ortalab Compat
+-- local card_highlight = Card.highlight
+-- function Card:highlight(highlighted)
+-- 	card_highlight(self, highlighted)
+-- 	-- --print("card highlighted")
+-- 	-- if highlighted and self.config.center_key == 'm_ortalab_index' and self.area == G.jokers and #G.jokers.highlighted == 1 and not G.booster_pack then
+--     --     -- self.children.use_button = UIBox{
+--     --     --     definition = G.UIDEF.use_index_buttons(self), 
+--     --     --     config = {align = 'cl', offset = {x=0.5, y=0}, parent = self, id = 'ortalab_index'}
+--     --     -- }
+-- 	-- 	local x_off = (self.ability.consumeable and -0.1 or 0)
+-- 	-- 	self.children.use_button = UIBox{
+-- 	-- 		definition = G.UIDEF.use_and_sell_buttons(self), 
+-- 	-- 		config = {align=
+-- 	-- 				((self.area == G.jokers) or (self.area == G.consumeables)) and "cr" or
+-- 	-- 				"bmi"
+-- 	-- 			, offset = 
+-- 	-- 				((self.area == G.jokers) or (self.area == G.consumeables)) and {x=x_off - 0.4,y=0} or
+-- 	-- 				{x=0,y=0.65},
+-- 	-- 			parent =self}
+-- 	-- 	}
+-- 	-- end
+-- 	if self.config.center_key == 'm_ortalab_index' and self.area == G.jokers and not G.booster_pack then
+-- 		self.highlighted = highlighted
+-- 		if true then
+-- 			if self.highlighted and self.area and self.area.config.type ~= 'shop' then
+-- 				local x_off = (self.ability.consumeable and -0.1 or 0)
+-- 				self.children.sell_button = UIBox{
+-- 					definition = G.UIDEF.use_and_sell_buttons(self), 
+-- 					config = {align=
+-- 							((self.area == G.jokers) or (self.area == G.consumeables)) and "cr" or
+-- 							"bmi"
+-- 						, offset = 
+-- 							((self.area == G.jokers) or (self.area == G.consumeables)) and {x=x_off - 0.4,y=0} or
+-- 							{x=0,y=0.65},
+-- 						parent =self}
+-- 				}
+-- 			elseif self.children.sell_button then
+-- 				self.children.sell_button:remove()
+-- 				self.children.sell_button = nil
+-- 			end
+-- 		end
+-- 		if self.ability.consumeable or self.ability.set == 'Joker' then
+-- 			if not self.highlighted and self.area and self.area.config.type == 'joker' and
+-- 				(#G.jokers.cards >= G.jokers.config.card_limit or (self.edition and self.edition.negative)) then
+-- 					if G.shop_jokers then G.shop_jokers:unhighlight_all() end
+-- 			end
+-- 		end
+-- 	end
+-- end
 
 
 --=============== CONFIG UI ===============--

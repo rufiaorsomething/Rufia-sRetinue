@@ -3,18 +3,6 @@ version = "1.0.0"
 dump_lua = true
 priority = 1
 
-# Confection cards
-[[patches]]
-[patches.pattern]
-target = 'functions/state_events.lua'
-pattern = '''if destroyed then break end
-end'''
-position = 'after'
-match_indent = true
-payload = '''
-if scoring_hand[i].config.center == G.P_CENTERS.m_rufia_confection and not scoring_hand[i].debuff then 
-	destroyed = true
-end'''
 
 # Null cards
 [[patches]]
@@ -95,77 +83,7 @@ payload = '''
 	end
 '''
 
-[[patches]]
-[patches.pattern]
-target = 'functions/state_events.lua'
-pattern = '''if next(eval) and eval.jokers then 
-						if not eval.jokers.repetitions then eval.jokers.repetitions = 0 end
-						for h = 1, eval.jokers.repetitions do
-							reps[#reps+1] = eval
-						end
-					end end})'''
-position = 'after'
-match_indent = true
-payload = '''
-	if scoring_hand[i].config.center == G.P_CENTERS.m_rufia_hypnotic and not scoring_hand[i].debuff then
 
-		if scoring_hand[i].hypnotic_in_hand then
-
-			local hypnotic_effects = {{scored_hypnotic = true }}
-			eval2 = eval_card(G.jokers.cards[j], {card_effects = hypnotic_effects, retrigger_hypnotics = true, cardarea = G.hand, full_hand = G.play.cards, scoring_hand = scoring_hand, scoring_name = text, poker_hands = poker_hands, other_card = scoring_hand[i], repetition = true, 
-			callback = function(card, ret)
-				eval2 = {jokers = ret}
-				if next(eval2) and eval2.jokers then 
-					if not eval2.jokers.repetitions then eval2.jokers.repetitions = 0 end
-					for h = 1, eval2.jokers.repetitions do
-						reps[#reps+1] = eval2
-					end
-				end 
-			end})
-		end
-	end
-'''
-
-
-
-
-# Shredded cards
-[[patches]]
-[patches.pattern]
-target = 'functions/state_events.lua'
-pattern = '''--From edition
-				if scoring_hand[i].edition and scoring_hand[i].edition.key then'''
-position = 'before'
-match_indent = true
-payload = '''
---Shredded Edition
-local is_in_play = false
-for i_hand=1, #G.play.cards do
-	if scoring_hand[i] == G.play.cards[i_hand] then is_in_play = true end
-end
-
-if is_in_play and i == 1 and #G.play.cards <= 2 then
-	for j=1, #G.jokers.cards do
-		if G.jokers.cards[j] and not G.jokers.cards[j].debuff and G.jokers.cards[j].edition and G.jokers.cards[j].edition.key == "e_rufia_shredded" then  --and G.jokers[j].edition and G.jokers[j].edition.name == "Shredded" then
-			for k=1, 2 do
-				reps[#reps+1] = {jokers = {
-					message = localize("k_again_ex"),
-					card = G.jokers.cards[j]
-				}}
-			end
-		end
-	end
-	for j=1, #scoring_hand do
-		if scoring_hand[j] and not scoring_hand[j].debuff and scoring_hand[j].edition and scoring_hand[j].edition.key == "e_rufia_shredded" then --and scoring_hand[j].edition.name == "Shredded" then
-			for k=1, 2 do
-				reps[#reps+1] = {seals = {
-					message = localize("k_again_ex"),
-					card = scoring_hand[j]
-				}}
-			end
-		end
-	end
-end'''
 
 # Debuff shader for Torn, Sunder, Ripped and Shredded cards
 [[patches]]
@@ -261,10 +179,63 @@ if context.cardarea == G.jokers and (self.ability.set == "Default" or self.abili
 		--print("context.joker_main")
 
 		--G.FUNCS.rufia_evaluate_card({self}, 1)
-		G.FUNCS.rufia_evaluate_card_retriggered({self}, 1)
+
+		--G.FUNCS.rufia_evaluate_card_retriggered({self}, 1)
+
+
+		context.cardarea = G.play
+		context.rufia_ignore_edition = true
+
+		SMODS.score_card(self, context)
+
+		context.cardarea = G.jokers
+		context.rufia_ignore_edition = nil
+
 	elseif context.after and not context.blueprint then
 		--print("context.after")
-		G.FUNCS.rufia_destroy_scoring_cards({self})
+		--G.FUNCS.rufia_destroy_scoring_cards({self})
+
+
+		local cards_destroyed = {}
+		SMODS.calculate_destroying_cards({
+			full_hand = G.play.cards,
+			scoring_hand = scoring_hand,
+			scoring_name = text,
+			poker_hands = poker_hands,
+			--cardarea = v
+			},
+			cards_destroyed,
+			{self} or nil)
+
+		-- context.remove_playing_cards calculations
+		if cards_destroyed[1] then
+			SMODS.calculate_context({scoring_hand = scoring_hand, remove_playing_cards = true, removed = cards_destroyed})
+		end
+		
+		-- TARGET: effects when cards are removed
+		
+
+
+		local glass_shattered = {}
+		for k, v in ipairs(cards_destroyed) do
+			if v.shattered then glass_shattered[#glass_shattered+1] = v end
+		end
+
+		check_for_unlock{type = 'shatter', shattered = glass_shattered}
+		
+		for i=1, #cards_destroyed do
+			G.E_MANAGER:add_event(Event({
+				func = function()
+					if SMODS.has_enhancement(cards_destroyed[i], 'm_glass') then
+						cards_destroyed[i]:shatter()
+					else
+						cards_destroyed[i]:start_dissolve()
+					end
+					return true
+				end
+				}))
+		end
+
 	end
 
 	if obj.calculate and type(obj.calculate) == 'function' then
@@ -275,16 +246,30 @@ if context.cardarea == G.jokers and (self.ability.set == "Default" or self.abili
 end
 '''
 
-# Disable Joker Slot Playing cards edition in eval_cards
+# Disable regular edition calculations for Joker Slot Playing cards
 # They get triggered elsewhere
 [[patches]]
 [patches.pattern]
-target = 'functions/state_events.lua'
-pattern = '''local edition_effects = eval_card(_card, {cardarea = G.jokers, full_hand = G.play.cards, scoring_hand = scoring_hand, scoring_name = text, poker_hands = poker_hands, edition = true})'''
-position = "after"
+target = 'functions/common_events.lua'
+pattern = '''local edition = card:calculate_edition(context)
+        if edition then
+            ret.edition = edition
+        end'''
+position = "at"
 match_indent = true
 payload = '''
-if _card.ability.set == "Default" or _card.ability.set == "Enhanced" then
-	edition_effects = {}
+local edition = card:calculate_edition(context)
+if edition and not (context.cardarea == G.jokers and (card.ability.set == "Default" or card.ability.set == "Enhanced")) then
+	ret.edition = edition
 end
 '''
+
+#Fix Missing Sell button
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''if self.ability.consumeable or self.ability.set == 'Joker' or (self.area and self.area == G.pack_cards) then'''
+position = 'at'
+match_indent = true
+payload = '''if self.ability.consumeable or self.ability.set == 'Joker' or (self.area and self.area == G.pack_cards)
+or (self.area and self.area == G.jokers) then'''

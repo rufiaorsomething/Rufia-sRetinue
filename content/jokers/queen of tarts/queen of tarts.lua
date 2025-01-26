@@ -3,11 +3,13 @@ local joker = {
 	atlas = "big",
 	pos = {x = 0, y = 0},
 	soul_pos = { x = 1, y = 0 },
+	display_size = {w = 105, h = 141},
 	rarity = 4,
 	cost = 20,
 	discovered = true,
-	discovered = true,
-	config = { rufia_rescale = {x = 1.479, y = 1.484} },
+	config = { 
+		--rufia_rescale = {x = 1.479, y = 1.484} 
+	},
 	loc_txt = {
 		name = "The Queen of Tarts",
 		text = {"Played Kings become {C:attention}Confection{} cards",

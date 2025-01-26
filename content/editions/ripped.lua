@@ -28,12 +28,11 @@ local edition = {
 	end,
 
 	calculate = function(self, card, context, effect)
-		if context.edition_main and context.edition_val then
+		if context.pre_joker or (context.main_scoring and context.cardarea == G.play) then
 			if #G.play.cards <= 2 then
-				context.edition_val.x_mult_mod  = self.config.xmult
-				--context.edition_val.chip_mod = 5
-			else
-				context.edition_val.x_mult_mod  = nil
+				return {
+					x_mult_mod = card.edition.xmult,
+				}
 			end
 		end
 	end

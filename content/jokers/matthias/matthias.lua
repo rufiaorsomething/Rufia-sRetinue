@@ -3,10 +3,13 @@ local joker = {
 	atlas = "big",
 	pos = {x = 2, y = 0},
 	soul_pos = { x = 3, y = 0 },
+	display_size = {w = 105, h = 141},
 	rarity = 4,
 	cost = 20,
 	discovered = true,
-	config = { rufia_rescale = {x = 1.479, y = 1.484} },
+	config = { 
+		--rufia_rescale = {x = 1.479, y = 1.484} 
+	},
 	enhancement_gate = 'm_gold',
 	loc_txt = {
 		name = "Matthias",

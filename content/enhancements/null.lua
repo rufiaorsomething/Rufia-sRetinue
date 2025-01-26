@@ -35,10 +35,14 @@ local enhancement = {
 	end,
 
 	calculate = function(self, card, context, effect)
-		if context.cardarea == G.play and not context.repetition then
+		if context.cardarea == G.play and context.main_scoring and not context.repetition then
 
-			effect.level_up = 1
-			effect.card = card
+			--effect.level_up = 1
+			--effect.card = card
+			return {
+				level_up = 1,
+				card = card
+			}
 		end
 	end
 }

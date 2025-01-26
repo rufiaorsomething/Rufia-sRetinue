@@ -18,7 +18,7 @@ local enhancement = {
 	end,
 
 	calculate = function(self, card, context, effect)
-		if context.cardarea == G.play and not context.repetition then
+		if context.cardarea == G.play and context.main_scoring and not context.repetition then
 			--if (card.ability.name) then print(card.ability.name) end
 
 			local eaten_chips = card:get_chip_bonus()--card.base.nominal + card.ability.perma_bonus --card.ability.chips + card.ability.perma_bonus
@@ -58,6 +58,11 @@ local enhancement = {
 			-- 	end
 			-- }))
 			delay(1)
+		end
+		if context.destroying_card then
+			return {
+				remove = true
+			}
 		end
 	end
 }

@@ -13,7 +13,8 @@ local joker = {
 	loc_txt = {
 		name = "Archangel Temperance",
 		text = {"{C:attention}+#1# Joker Slots",
-				"{C:attention}Debuffs{} all jokers not", "adjacent to this one"}
+				"{C:attention}Debuffs{} all jokers not", "adjacent to this one",
+				"{C:inactive,s:0.8}Debuffed Jokers are permanently debuffed if this Joker is sold{}"}
 	},
 	loc_vars = function(self, info_queue, card)
 		return {

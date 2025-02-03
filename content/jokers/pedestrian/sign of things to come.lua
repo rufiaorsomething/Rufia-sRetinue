@@ -38,7 +38,7 @@ joker.calculate = function(self, card, context)
 				-- if G.jokers.cards[i] ~= card then
 				-- 	first_copy = false
 				-- end
-			else
+			elseif not G.jokers.cards[i].ability.eternal then
 				nonsign_cards[#nonsign_cards + 1] = i
 			end
 		end
@@ -77,21 +77,40 @@ joker.calculate = function(self, card, context)
 		end
 	end
 
+	-- local other_joker = nil
+	-- for i = 1, #G.jokers.cards do
+	-- 	if G.jokers.cards[i] == card then other_joker = G.jokers.cards[i+1] end
+	-- end
+	-- if other_joker and other_joker ~= card and not context.no_blueprint then
+	-- 	context.blueprint = (context.blueprint and (context.blueprint + 1)) or 1
+	-- 	context.copy_depth = (context.copy_depth and (context.copy_depth + 1)) or 1
+	-- 	context.blueprint_card = context.blueprint_card or card
+	-- 	if context.blueprint > #G.jokers.cards + 1 then return end
+	-- 	context.no_callback = true
+	-- 	local other_joker_ret, trig = other_joker:calculate_joker(context)
+	-- 	if other_joker_ret then 
+	-- 		other_joker_ret.card = context.blueprint_card or card
+	-- 		context.no_callback = not (context.copy_depth <= 1)
+	-- 		context.copy_depth = context.copy_depth - 1;
+	-- 		other_joker_ret.colour = G.C.BLUE
+	-- 		return other_joker_ret
+	-- 	end
+	-- end
+
 	local other_joker = nil
 	for i = 1, #G.jokers.cards do
 		if G.jokers.cards[i] == card then other_joker = G.jokers.cards[i+1] end
 	end
 	if other_joker and other_joker ~= card and not context.no_blueprint then
 		context.blueprint = (context.blueprint and (context.blueprint + 1)) or 1
-		context.copy_depth = (context.copy_depth and (context.copy_depth + 1)) or 1
 		context.blueprint_card = context.blueprint_card or card
 		if context.blueprint > #G.jokers.cards + 1 then return end
-		context.no_callback = true
-		local other_joker_ret, trig = other_joker:calculate_joker(context)
+		local other_joker_ret = other_joker:calculate_joker(context)
+		context.blueprint = nil
+		local eff_card = context.blueprint_card or card
+		context.blueprint_card = nil
 		if other_joker_ret then 
-			other_joker_ret.card = context.blueprint_card or card
-			context.no_callback = not (context.copy_depth <= 1)
-			context.copy_depth = context.copy_depth - 1;
+			other_joker_ret.card = eff_card
 			other_joker_ret.colour = G.C.BLUE
 			return other_joker_ret
 		end

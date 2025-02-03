@@ -160,12 +160,16 @@ joker.calculate = function(self, card, context)
 
 
 	if context.joker_main and card.ability.extra.chips > 0 then
-		SMODS.eval_this(card, {
+		-- SMODS.eval_this(card, {
+		-- 	message = localize{type = 'variable', key = 'a_chips', vars = {card.ability.extra.chips}},
+		-- 	chip_mod = card.ability.extra.chips, 
+		-- 	colour = G.C.CHIPS
+		-- })
+		return {
 			message = localize{type = 'variable', key = 'a_chips', vars = {card.ability.extra.chips}},
 			chip_mod = card.ability.extra.chips, 
 			colour = G.C.CHIPS
-		})
-		return nil, true
+		}--nil, true
 	end
 end
 

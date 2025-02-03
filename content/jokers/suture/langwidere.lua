@@ -41,10 +41,6 @@ joker.calculate = function(self, card, context)
 		card_eval_status_text(card, 'extra', nil, nil, nil, {
 			message = "Decapitated!"})
 		
-			local torn_copy = copy_card(context.destroying_card)
-			torn_copy:add_to_deck()
-			torn_copy.states.visible = nil
-			
 			
 			G.playing_card = (G.playing_card and G.playing_card + 1) or 1
 			local sundered_copy = copy_card(context.destroying_card)
@@ -54,23 +50,41 @@ joker.calculate = function(self, card, context)
 			sundered_copy.states.visible = nil
 
 
+			local torn_copy
+
+			if #G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit then
+				G.GAME.joker_buffer = G.GAME.joker_buffer + 1
+				torn_copy = copy_card(context.destroying_card)
+				torn_copy:add_to_deck()
+				torn_copy.states.visible = nil
+			end
+
+			-- local torn_copy = copy_card(context.destroying_card)
+			-- torn_copy:add_to_deck()
+			-- torn_copy.states.visible = nil
+			
+
+
 			G.E_MANAGER:add_event(Event({
 				trigger = 'after',
 				delay = 1,
 				func = function()
-					G.jokers:emplace(torn_copy)
-					local edition = {rufia_torn = true}
-					torn_copy:set_edition(edition, true)
-					torn_copy:start_materialize()
-
 					G.hand:emplace(sundered_copy)
-					edition = {rufia_sundered = true}
+					local edition = {rufia_sundered = true}
 					sundered_copy:set_edition(edition, true)
 					sundered_copy:start_materialize()
 					playing_card_joker_effects({sundered_copy})
+
+					if torn_copy then
+						G.jokers:emplace(torn_copy)
+						edition = {rufia_torn = true}
+						torn_copy:set_edition(edition, true)
+						torn_copy:start_materialize()
+						G.GAME.joker_buffer = 0
+					end
 					return true
 				end
-			})) 
+			}))
 		
 
 		return true

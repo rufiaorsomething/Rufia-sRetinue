@@ -40,7 +40,7 @@ local enhancement = {
 			--effect.level_up = 1
 			--effect.card = card
 			return {
-				level_up = 1,
+				null_level_up = 1,
 				card = card
 			}
 		end

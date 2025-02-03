@@ -227,6 +227,7 @@ love.filesystem.remove("temp-font.ttf")
 
 -- Load all jokers
 for _, v in ipairs(joker_list) do
+	print("loading: " .. "content/jokers/" .. v .. ".lua")
 	local joker = SMODS.load_file("content/jokers/" .. v .. ".lua")()
 
 	--joker.discovered = true
@@ -403,13 +404,13 @@ local should_debuff_ability = {
 	--"leech_debuff",
 }
 function SMODS.current_mod.set_debuff(card, should_debuff)
-	if card.ability then
-		for _, v in ipairs(should_debuff_ability) do
-			if card.ability[v] then
-				return true
-			end
-		end
-	end
+	-- if card.ability then
+	-- 	for _, v in ipairs(should_debuff_ability) do
+	-- 		if card.ability[v] then
+	-- 			return true
+	-- 		end
+	-- 	end
+	-- end
 end
 
 
@@ -491,9 +492,121 @@ SMODS.calculate_repetitions = function(card, context, reps)
 	return reps
 end
 
+-- add a new context for removing cards
+local card_remove_ref = Card.remove
+function Card:remove()
+	--G.vouchers
+	--G.booster_pack
+	--G.pack_cards
+	--G.shop
+	--G.shop_jokers
+	--G.shop_booster
+	--G.shop_voucher
+	--print("card removed")
+	
+	-- Food jokers remove themselves from the Joker cardarea before calling remove.
+	-- As a result, this current implementation fails to catch them.
+	-- Maybe add an override to the emplace function storing the last area they were emplaced?
+	if self.area and
+		--not (self.ability.set == 'Booster' or self.ability.set == 'Voucher' or self.ability.set == 'Consumable') and
+		(self.ability.set == "Joker" or self.ability.set == "Default" or self.ability.set == "Enhanced") and
+		--not self.opening and
+		(self.area == G.jokers or
+		self.area == G.consumable or
+		self.area == G.play or
+		self.area == G.hand) then
+		--print("valid card removed")
+		-- print("self.area:")
+		-- for _k, _v in pairs(self.area) do
+		-- 	print("self.area." .. _k)
+		-- end
+
+		if G.jokers and G.jokers.cards then
+			for i=1, #G.jokers.cards do
+				G.jokers.cards[i]:calculate_joker({rufia_card_remove = true, removed_card = self})
+			end
+			if not self.rufia_sold then
+				for i=1, #G.jokers.cards do
+					G.jokers.cards[i]:calculate_joker({rufia_card_destroyed = true, destroyed_card = self})
+				end
+			end
+		end
+	end
+
+
+	card_remove_ref(self)
+end
+
+local card_sell_ref = Card.sell_card
+function Card:sell_card()
+	self.rufia_sold = true
+
+	card_sell_ref(self)
+end
+
+local card_redeem_ref = Card.redeem
+function Card:redeem()
+	self.rufia_redeemed = true
+
+	card_redeem_ref(self)
+end
 
 
 
+--Null Cards
+SMODS.calculation_keys[#SMODS.calculation_keys + 1] = 'null_level_up'
+
+local calculate_individual_effect_ref = SMODS.calculate_individual_effect
+SMODS.calculate_individual_effect = function(effect, scored_card, key, amount, from_edition)
+	if key == 'null_level_up' then
+		local hand_i = G.GAME.last_hand_played
+		level_up_hand(scored_card, hand_i, true, amount)
+	
+		local col = G.C.GREEN
+		
+		G.E_MANAGER:add_event(Event({
+			trigger = 'after',
+			delay = 0.2,
+			func = function()
+				play_sound('tarot1')
+				if scored_card and scored_card.juice_up then scored_card:juice_up(0.8, 0.5) end
+				G.TAROT_INTERRUPT_PULSE = true
+				return true 
+			end }))
+		mult = mod_mult(mult + G.GAME.hands[hand_i].l_mult)
+		update_hand_text({delay = 0}, {mult = mult, StatusText = true})
+	
+		G.E_MANAGER:add_event(Event({
+			trigger = 'after',
+			delay = 0.9,
+			func = function()
+				play_sound('tarot1')
+				if scored_card and scored_card.juice_up then scored_card:juice_up(0.8, 0.5) end
+				return true 
+			end }))
+		hand_chips = mod_chips(hand_chips + G.GAME.hands[hand_i].l_chips)
+		update_hand_text({delay = 0}, {chips = hand_chips, StatusText = true})
+	
+		G.E_MANAGER:add_event(Event({
+			trigger = 'after',
+			delay = 0.9,
+			func = function()
+				play_sound('tarot1')
+				if scored_card and scored_card.juice_up then scored_card:juice_up(0.8, 0.5) end
+				G.TAROT_INTERRUPT_PULSE = nil
+				return true
+			end }))
+		update_hand_text(
+			{sound = 'button', volume = 0.7, pitch = 0.9, delay = 0},
+			{level=G.GAME.hands[hand_i].level}
+		)
+		delay(1.3)
+
+		return true
+	end
+
+	return calculate_individual_effect_ref(effect, scored_card, key, amount, from_edition)
+end
 
 -- --Ortalab Compat
 -- local card_highlight = Card.highlight

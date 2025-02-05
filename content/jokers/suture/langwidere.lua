@@ -18,7 +18,8 @@ local joker = {
 	loc_txt = {
 		name = "The Magician Langwidere",
 		text = {"If played hand contains only", "a single scoring base edition",
-				"face card {C:attention}destroy{} it and", "add {C:attention}Torn{} copy of it to your jokers", "and a {C:attention}Sundered{} copy of it to your hand"}
+				"face card {C:attention}destroy{} it and", "add {C:attention}Torn{} copy of it to your jokers", "and a {C:attention}Sundered{} copy of it to your hand",
+				"{C:inactive}(Must have room){}"}
 	},
 	loc_vars = function(self, info_queue, card)
 		info_queue[#info_queue + 1] = G.P_CENTERS.e_rufia_torn

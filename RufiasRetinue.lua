@@ -108,7 +108,7 @@ local joker_list = {
 	--"suture/nightcap",
 	--"suture/owl",
 	--"suture/possum",
-	-- "suture/perpetuity",
+	"suture/perpetuity",
 	-- "suture/obedience",
 	-- "suture/silence",
 	-- "suture/adversity",

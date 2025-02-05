@@ -23,13 +23,3 @@ To run this mod you will require:
 If you're new to Balatro modding, I'd also like to recommend [Galdur](https://github.com/Eremel/Galdur), [Cartomancer](https://github.com/stupxd/Cartomancer) and [Handy](https://github.com/SleepyG11/HandyBalatro) as Quality of Life mods, but I will leave you to explore the wide world of Balatro content mods on your own.
 
 If you're unsure where to look, the official Balatro discord or the Modded Balatro wiki can be good places to start.
-
-
-
-
-https://github.com/ethangreen-dev/lovely-injector
-https://github.com/ethangreen-dev/lovely-injector/releases/tag/v0.7.1
-
-https://github.com/Steamodded/smods/archive/f6ce426d8c5def59303fb8a8927596826eb9037c.zip
-
-https://github.com/Steamodded/smods/tree/f6ce426d8c5def59303fb8a8927596826eb9037c

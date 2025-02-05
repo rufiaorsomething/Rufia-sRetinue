@@ -4,6 +4,7 @@ local voucher = {
 	order = 2,
 	atlas = "atlasvoucher",
 	pos = { x = 1, y = 2 },
+	soul_pos = { x = 1, y = 3 },
 	loc_txt = {
 		name = "Hope",
 		text = {"Creates a {C:legendary}Legendary{} Joker", "{C:inactive}(Must have room){}",}

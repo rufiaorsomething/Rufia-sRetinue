@@ -948,5 +948,22 @@ SMODS.Atlas({
 	py = 95 
 })
 
+SMODS.Sound({
+	key = "e_torn",
+	path = "e_torn.ogg",
+})
+SMODS.Sound({
+	key = "e_sundered",
+	path = "e_sundered.ogg",
+})
+SMODS.Sound({
+	key = "e_ripped",
+	path = "e_ripped.ogg",
+})
+SMODS.Sound({
+	key = "e_shredded",
+	path = "e_shredded.ogg",
+})
+
 -- Clear all Cathys
 sendInfoMessage("Loaded Rufia's Retinue!")

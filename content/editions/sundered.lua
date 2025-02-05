@@ -9,6 +9,11 @@ local edition = {
 	disable_shadow = true,
 	disable_base_shader = true,
 	extra_cost = "2",
+	sound = {
+		sound = "rufia_e_sundered",
+		per = 1,
+		vol = 0.75,
+	},
 	in_shop = true,
 	weight = 3,
 	config = {

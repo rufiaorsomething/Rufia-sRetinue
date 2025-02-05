@@ -6,7 +6,7 @@
 A Balatro mod all about my little personal pantheon. This is an Alpha Release, so a lot of the artwork still needs work, and I can't promise there won't be bugs, but I judged it a complete enough package to release into the wild.
 
 As of Febuary 2025, This mod currently includes:
-- 11 Jokers
+- 12 Jokers
 - 2 Vouchers
 - 3 Enhancements
 - 4 Editions
